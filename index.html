@@ -43,6 +43,15 @@
         .popup-button:hover {
             background-color: #45a049;
         }
+
+        /* Style for live location pin */
+        .live-location-icon {
+            width: 40px;
+            height: 40px;
+            background-color: red;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
     </style>
 </head>
 <body>
@@ -68,7 +77,7 @@
             // Add more stations here
         ];
 
-        // Add markers and popup with options
+        // Add markers for fuel stations with options
         stations.forEach(function(station) {
             var marker = L.marker([station[0], station[1]]).addTo(map)
                 .bindPopup(`
@@ -97,6 +106,9 @@
             window.open(mapsUrl, '_blank');
         }
 
+        // Variable for live location marker
+        var liveMarker; 
+
         // Function to get and show the driver's location when button is clicked
         document.getElementById('locationBtn').onclick = function() {
             alert("Button clicked. Requesting location...");
@@ -107,13 +119,35 @@
 
                     var driverLat = position.coords.latitude;
                     var driverLon = position.coords.longitude;
-                    
-                    // Display the driver's location
-                    var driverLocation = L.marker([driverLat, driverLon]).addTo(map)
-                        .bindPopup("You're here!").openPopup();
-                    
+
+                    // Create a custom icon for the live location (Google-style pin)
+                    var liveIcon = L.icon({
+                        iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Map_pin_icon.png', // Google-style pin image
+                        iconSize: [40, 40], // Larger size to distinguish from other markers
+                        iconAnchor: [20, 40], // Adjust to anchor at the bottom of the pin
+                        popupAnchor: [0, -40]
+                    });
+
+                    // If a live marker exists, update it, otherwise create it
+                    if (liveMarker) {
+                        liveMarker.setLatLng([driverLat, driverLon]); // Update position
+                    } else {
+                        liveMarker = L.marker([driverLat, driverLon], {icon: liveIcon}).addTo(map)
+                            .bindPopup("You're here!").openPopup();
+                    }
+
                     // Zoom the map to the driver's location
                     map.setView([driverLat, driverLon], 14); // Adjust zoom level if necessary
+
+                    // Watch position to update location continuously
+                    navigator.geolocation.watchPosition(function(position) {
+                        var newLat = position.coords.latitude;
+                        var newLon = position.coords.longitude;
+                        liveMarker.setLatLng([newLat, newLon]); // Update the marker position
+                        map.setView([newLat, newLon], 14); // Adjust map center
+                    }, function(error) {
+                        alert("Location update failed: " + error.message);
+                    });
                 }, function(error) {
                     alert("Geolocation failed: " + error.message);
                 });
@@ -133,12 +167,34 @@
                     var driverLat = position.coords.latitude;
                     var driverLon = position.coords.longitude;
 
-                    // Display the driver's location
-                    var driverLocation = L.marker([driverLat, driverLon]).addTo(map)
-                        .bindPopup("You're here!").openPopup();
-                    
+                    // Create a custom icon for the live location (Google-style pin)
+                    var liveIcon = L.icon({
+                        iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Map_pin_icon.png', // Google-style pin image
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 40],
+                        popupAnchor: [0, -40]
+                    });
+
+                    // Create or update the live location marker
+                    if (liveMarker) {
+                        liveMarker.setLatLng([driverLat, driverLon]); // Update position
+                    } else {
+                        liveMarker = L.marker([driverLat, driverLon], {icon: liveIcon}).addTo(map)
+                            .bindPopup("You're here!").openPopup();
+                    }
+
                     // Zoom the map to the driver's location
                     map.setView([driverLat, driverLon], 14); // Adjust zoom level if necessary
+
+                    // Watch position to update location continuously
+                    navigator.geolocation.watchPosition(function(position) {
+                        var newLat = position.coords.latitude;
+                        var newLon = position.coords.longitude;
+                        liveMarker.setLatLng([newLat, newLon]); // Update the marker position
+                        map.setView([newLat, newLon], 14); // Adjust map center
+                    }, function(error) {
+                        alert("Location update failed: " + error.message);
+                    });
                 }, function(error) {
                     alert("Geolocation failed: " + error.message);
                 });
