@@ -7,7 +7,7 @@
     <style>
         /* Make the map container fill available screen space */
         #map {
-            height: 80vh;  /* Set the height to 80% of the viewport height */
+            height: 85vh;  /* Set the height to 85% of the viewport height */
             width: 100%;  /* Make the map width 100% of the screen */
         }
 
@@ -23,6 +23,7 @@
             border-radius: 5px;
             font-size: 18px;
             z-index: 9999; /* Ensure the button is on top of other elements */
+            width: 150px;  /* Set width for better accessibility */
         }
 
         /* Style for the custom options in the popup */
@@ -34,11 +35,12 @@
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 12px;
+            padding: 10px;
             margin: 5px;
             cursor: pointer;
             border-radius: 5px;
             font-size: 16px;
+            width: 100%;
         }
 
         .popup-button:hover {
@@ -47,16 +49,22 @@
 
         /* Style for live location pin */
         .live-location-icon {
-            width: 50px;  /* Increase size for better visibility */
-            height: 50px;
+            width: 40px;  /* Increase size for better visibility */
+            height: 40px;
             background-color: #ff5722;  /* A visible color */
             border-radius: 50%;
             border: 2px solid white;
         }
 
-        /* Ensure popups and buttons are large enough for mobile */
+        /* Ensure popups and buttons remain readable */
         .leaflet-popup-content {
             font-size: 14px;
+        }
+
+        /* Adjust map buttons for visibility on mobile */
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out {
+            z-index: 100; /* Ensure zoom buttons are above other elements */
         }
     </style>
 </head>
@@ -88,7 +96,7 @@
             var marker = L.marker([station[0], station[1]], {
                 icon: L.icon({
                     iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default Leaflet pin
-                    iconSize: [50, 50], // Increased size for better visibility
+                    iconSize: [50, 50], // Fixed size for all zoom levels (larger than default)
                     iconAnchor: [25, 50], // Anchor at the bottom of the pin
                     popupAnchor: [0, -50]
                 })
@@ -183,7 +191,7 @@
                     // Create a custom icon for the live location (Google-style pin)
                     var liveIcon = L.icon({
                         iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default pin image
-                        iconSize: [50, 50], // Larger size
+                        iconSize: [50, 50], // Larger size for better visibility
                         iconAnchor: [25, 50],
                         popupAnchor: [0, -50]
                     });
