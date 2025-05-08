@@ -79,7 +79,14 @@
 
         // Add markers for fuel stations with options
         stations.forEach(function(station) {
-            var marker = L.marker([station[0], station[1]]).addTo(map)
+            var marker = L.marker([station[0], station[1]], {
+                icon: L.icon({
+                    iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Map_pin_icon.png', // Google-style pin image
+                    iconSize: [40, 40], // Larger size for easy identification
+                    iconAnchor: [20, 40], // Position at the bottom
+                    popupAnchor: [0, -40]
+                })
+            }).addTo(map)
                 .bindPopup(`
                     <b>${station[2]}</b>
                     <div class="popup-options">
@@ -107,7 +114,7 @@
         }
 
         // Variable for live location marker
-        var liveMarker; 
+        var liveMarker;
 
         // Function to get and show the driver's location when button is clicked
         document.getElementById('locationBtn').onclick = function() {
@@ -123,7 +130,7 @@
                     // Create a custom icon for the live location (Google-style pin)
                     var liveIcon = L.icon({
                         iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Map_pin_icon.png', // Google-style pin image
-                        iconSize: [40, 40], // Larger size to distinguish from other markers
+                        iconSize: [40, 40], // Fixed size for all zoom levels
                         iconAnchor: [20, 40], // Adjust to anchor at the bottom of the pin
                         popupAnchor: [0, -40]
                     });
@@ -156,7 +163,7 @@
             }
         };
 
-        // Automatically get location when the page loads
+        // Automatically get location when the page loads (only once)
         window.onload = function() {
             alert("Attempting to get location automatically...");
 
@@ -170,7 +177,7 @@
                     // Create a custom icon for the live location (Google-style pin)
                     var liveIcon = L.icon({
                         iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Map_pin_icon.png', // Google-style pin image
-                        iconSize: [40, 40],
+                        iconSize: [40, 40], // Larger size
                         iconAnchor: [20, 40],
                         popupAnchor: [0, -40]
                     });
@@ -185,16 +192,6 @@
 
                     // Zoom the map to the driver's location
                     map.setView([driverLat, driverLon], 14); // Adjust zoom level if necessary
-
-                    // Watch position to update location continuously
-                    navigator.geolocation.watchPosition(function(position) {
-                        var newLat = position.coords.latitude;
-                        var newLon = position.coords.longitude;
-                        liveMarker.setLatLng([newLat, newLon]); // Update the marker position
-                        map.setView([newLat, newLon], 14); // Adjust map center
-                    }, function(error) {
-                        alert("Location update failed: " + error.message);
-                    });
                 }, function(error) {
                     alert("Geolocation failed: " + error.message);
                 });
