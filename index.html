@@ -16,12 +16,12 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            padding: 10px;
+            padding: 12px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 18px;
             z-index: 9999; /* Ensure the button is on top of other elements */
         }
 
@@ -34,10 +34,11 @@
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 8px;
+            padding: 12px;
             margin: 5px;
             cursor: pointer;
             border-radius: 5px;
+            font-size: 16px;
         }
 
         .popup-button:hover {
@@ -46,11 +47,16 @@
 
         /* Style for live location pin */
         .live-location-icon {
-            width: 50px;  /* Increased size for better visibility */
+            width: 50px;  /* Increase size for better visibility */
             height: 50px;
             background-color: #ff5722;  /* A visible color */
             border-radius: 50%;
             border: 2px solid white;
+        }
+
+        /* Ensure popups and buttons are large enough for mobile */
+        .leaflet-popup-content {
+            font-size: 14px;
         }
     </style>
 </head>
@@ -82,9 +88,9 @@
             var marker = L.marker([station[0], station[1]], {
                 icon: L.icon({
                     iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default Leaflet pin
-                    iconSize: [40, 40], // Fixed size for all zoom levels
-                    iconAnchor: [20, 40], // Anchor at the bottom of the pin
-                    popupAnchor: [0, -40]
+                    iconSize: [50, 50], // Increased size for better visibility
+                    iconAnchor: [25, 50], // Anchor at the bottom of the pin
+                    popupAnchor: [0, -50]
                 })
             }).addTo(map)
                 .bindPopup(`
@@ -114,7 +120,7 @@
         }
 
         // Variable for live location marker
-        var liveMarker; 
+        var liveMarker;
 
         // Function to get and show the driver's location when button is clicked
         document.getElementById('locationBtn').onclick = function() {
@@ -177,7 +183,7 @@
                     // Create a custom icon for the live location (Google-style pin)
                     var liveIcon = L.icon({
                         iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default pin image
-                        iconSize: [50, 50], // Larger size for better visibility
+                        iconSize: [50, 50], // Larger size
                         iconAnchor: [25, 50],
                         popupAnchor: [0, -50]
                     });
