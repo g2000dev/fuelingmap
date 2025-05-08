@@ -77,12 +77,12 @@
             // Add more stations here
         ];
 
-        // Add markers for fuel stations with options
+        // Add markers for fuel stations with fixed size (no zoom scaling)
         stations.forEach(function(station) {
             var marker = L.marker([station[0], station[1]], {
                 icon: L.icon({
                     iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Map_pin_icon.png', // Standard pin
-                    iconSize: [40, 40], // Fixed size
+                    iconSize: [40, 40], // Fixed size for all zoom levels
                     iconAnchor: [20, 40], // Anchor at the bottom of the pin
                     popupAnchor: [0, -40]
                 })
