@@ -49,8 +49,8 @@
 
         /* Style for live location pin */
         .live-location-icon {
-            width: 40px;  /* Increased size for better visibility */
-            height: 40px;
+            width: 50px;  /* Increased size for better visibility */
+            height: 50px;
             background-color: #ff5722;  /* A visible color */
             border-radius: 50%;
             border: 2px solid white;
@@ -92,16 +92,17 @@
             // Add more stations here
         ];
 
+        // Use Leaflet's default pin for all markers (fuel stations)
+        var defaultIcon = L.icon({
+            iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default pin icon from Leaflet
+            iconSize: [40, 40], // Larger size for visibility
+            iconAnchor: [20, 40], // Anchor at the bottom of the pin
+            popupAnchor: [0, -40]
+        });
+
         // Add markers for fuel stations with fixed size (no zoom scaling)
         stations.forEach(function(station) {
-            var marker = L.marker([station[0], station[1]], {
-                icon: L.icon({
-                    iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Map_marker_icon_%28Google%29.png/120px-Map_marker_icon_%28Google%29.png', // Updated standard pin with proper size
-                    iconSize: [40, 40], // Fixed size for all zoom levels (larger than default)
-                    iconAnchor: [20, 40], // Anchor at the bottom of the pin
-                    popupAnchor: [0, -50]
-                })
-            }).addTo(map)
+            var marker = L.marker([station[0], station[1]], {icon: defaultIcon}).addTo(map)
                 .bindPopup(`
                     <b>${station[2]}</b>
                     <div class="popup-options">
@@ -129,7 +130,7 @@
         }
 
         // Variable for live location marker
-        var liveMarker; 
+        var liveMarker;
 
         // Function to get and show the driver's location when button is clicked
         document.getElementById('locationBtn').onclick = function() {
@@ -144,8 +145,8 @@
 
                     // Create a custom icon for the live location (Google-style pin)
                     var liveIcon = L.icon({
-                        iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Map_marker_icon_%28Google%29.png/120px-Map_marker_icon_%28Google%29.png', // Standard Google-style pin
-                        iconSize: [50, 50], // Increased size for better visibility
+                        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Standard pin
+                        iconSize: [50, 50], // Larger size for better visibility
                         iconAnchor: [25, 50], // Adjust to anchor at the bottom of the pin
                         popupAnchor: [0, -50]
                     });
@@ -191,7 +192,7 @@
 
                     // Create a custom icon for the live location (Google-style pin)
                     var liveIcon = L.icon({
-                        iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Map_marker_icon_%28Google%29.png/120px-Map_marker_icon_%28Google%29.png', // Standard pin
+                        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default pin image
                         iconSize: [50, 50], // Larger size for better visibility
                         iconAnchor: [25, 50],
                         popupAnchor: [0, -50]
