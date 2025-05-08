@@ -24,6 +24,25 @@
             font-size: 16px;
             z-index: 9999; /* Ensure the button is on top of other elements */
         }
+
+        /* Style for the custom options in the popup */
+        .popup-options {
+            margin-top: 10px;
+        }
+
+        .popup-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .popup-button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -38,22 +57,45 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Fuel station data (latitude, longitude)
+        // Fuel station data (latitude, longitude, address)
         var stations = [
-            [43.7449999, -79.6912853, "BVD Brampton, 130 Delta Park, Brampton, ON", "Green"],
-            [43.6590715, -79.6561726, "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON", "Green"],
-            [42.9934741, -82.3104226, "BVD Sarnia, 81 Ube Dr, Sarnia, ON", "Green"],
-            [35.2990989, -84.7748544, "Charleston (Tennessee), 200 Lower River Road NW, Charleston, TN, 37310", "Green"],
-            [30.517509, -81.636027, "Jacksonville (Florida) - Loves #603, 400 Pecan Park Road, Jacksonville, FL, 32218", "Green"],
-            [30.4649705, -81.6732823, "Jacksonville (Florida) - Loves #828, 12921 Duval Rd, Jacksonville, FL 32218", "Green"]
+            [43.7449999, -79.6912853, "BVD Brampton, 130 Delta Park, Brampton, ON"],
+            [43.6590715, -79.6561726, "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"],
+            [42.9934741, -82.3104226, "BVD Sarnia, 81 Ube Dr, Sarnia, ON"],
+            [35.2990989, -84.7748544, "Charleston (Tennessee), 200 Lower River Road NW, Charleston, TN, 37310"],
+            [30.517509, -81.636027, "Jacksonville (Florida) - Loves #603, 400 Pecan Park Road, Jacksonville, FL, 32218"],
+            [30.4649705, -81.6732823, "Jacksonville (Florida) - Loves #828, 12921 Duval Rd, Jacksonville, FL 32218"]
             // Add more stations here
         ];
 
-        // Add markers with different color based on zone type (Green, Yellow, Red)
+        // Add markers and popup with options
         stations.forEach(function(station) {
-            L.marker([station[0], station[1]]).addTo(map)
-                .bindPopup(station[2]);
+            var marker = L.marker([station[0], station[1]]).addTo(map)
+                .bindPopup(`
+                    <b>${station[2]}</b>
+                    <div class="popup-options">
+                        <button class="popup-button" onclick="copyAddress('${station[2]}')">Copy Address</button>
+                        <button class="popup-button" onclick="openGoogleMaps('${station[2]}')">Open in Google Maps</button>
+                    </div>
+                `);
         });
+
+        // Function to copy the address to clipboard
+        function copyAddress(address) {
+            var textArea = document.createElement("textarea");
+            textArea.value = address;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert("Address copied to clipboard!");
+        }
+
+        // Function to open the address in Google Maps
+        function openGoogleMaps(address) {
+            var mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
+            window.open(mapsUrl, '_blank');
+        }
 
         // Function to get and show the driver's location when button is clicked
         document.getElementById('locationBtn').onclick = function() {
@@ -90,7 +132,7 @@
 
                     var driverLat = position.coords.latitude;
                     var driverLon = position.coords.longitude;
-                    
+
                     // Display the driver's location
                     var driverLocation = L.marker([driverLat, driverLon]).addTo(map)
                         .bindPopup("You're here!").openPopup();
