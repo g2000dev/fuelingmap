@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fueling Stations Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        /* Make the map container fill available screen space */
+        #map {
+            height: 80vh;  /* Set the height to 80% of the viewport height */
+            width: 100%;  /* Make the map width 100% of the screen */
+        }
+
+        /* Style for the "Get My Location" button */
+        #locationBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 9999; /* Ensure the button is on top of other elements */
+        }
+    </style>
+</head>
+<body>
+    <button id="locationBtn">Get My Location</button>
+    <div id="map"></div>
+    <script>
+        // Create the map with Toronto as default location if no location service
+        var map = L.map('map').setView([43.651070, -79.347015], 10); // Default to Toronto, ON if location is not available
+        
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Fuel station data (latitude, longitude)
+        var stations = [
+            [43.7449999, -79.6912853, "BVD Brampton, 130 Delta Park, Brampton, ON", "Green"],
+            [43.6590715, -79.6561726, "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON", "Green"],
+            [42.9934741, -82.3104226, "BVD Sarnia, 81 Ube Dr, Sarnia, ON", "Green"],
+            [35.2990989, -84.7748544, "Charleston (Tennessee), 200 Lower River Road NW, Charleston, TN, 37310", "Green"],
+            [30.517509, -81.636027, "Jacksonville (Florida) - Loves #603, 400 Pecan Park Road, Jacksonville, FL, 32218", "Green"],
+            [30.4649705, -81.6732823, "Jacksonville (Florida) - Loves #828, 12921 Duval Rd, Jacksonville, FL 32218", "Green"]
+            // Add more stations here
+        ];
+
+        // Add markers with different color based on zone type (Green, Yellow, Red)
+        stations.forEach(function(station) {
+            L.marker([station[0], station[1]]).addTo(map)
+                .bindPopup(station[2]);
+        });
+
+        // Function to get and show the driver's location when button is clicked
+        document.getElementById('locationBtn').onclick = function() {
+            alert("Button clicked. Requesting location...");
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    alert("Location found!");
+
+                    var driverLat = position.coords.latitude;
+                    var driverLon = position.coords.longitude;
+                    
+                    // Display the driver's location
+                    var driverLocation = L.marker([driverLat, driverLon]).addTo(map)
+                        .bindPopup("You're here!").openPopup();
+                    
+                    // Zoom the map to the driver's location
+                    map.setView([driverLat, driverLon], 14); // Adjust zoom level if necessary
+                }, function(error) {
+                    alert("Geolocation failed: " + error.message);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        };
+
+        // Automatically get location when the page loads
+        window.onload = function() {
+            alert("Attempting to get location automatically...");
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    alert("Automatic location detected!");
+
+                    var driverLat = position.coords.latitude;
+                    var driverLon = position.coords.longitude;
+                    
+                    // Display the driver's location
+                    var driverLocation = L.marker([driverLat, driverLon]).addTo(map)
+                        .bindPopup("You're here!").openPopup();
+                    
+                    // Zoom the map to the driver's location
+                    map.setView([driverLat, driverLon], 14); // Adjust zoom level if necessary
+                }, function(error) {
+                    alert("Geolocation failed: " + error.message);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        };
+    </script>
+</body>
+</html>
