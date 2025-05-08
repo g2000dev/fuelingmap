@@ -48,7 +48,7 @@
         .live-location-icon {
             width: 40px;
             height: 40px;
-            background-color: red;
+            background-color: #ff5722;  /* A good visible color */
             border-radius: 50%;
             border: 2px solid white;
         }
@@ -81,9 +81,9 @@
         stations.forEach(function(station) {
             var marker = L.marker([station[0], station[1]], {
                 icon: L.icon({
-                    iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Map_pin_icon.png', // Google-style pin image
-                    iconSize: [40, 40], // Larger size for easy identification
-                    iconAnchor: [20, 40], // Position at the bottom
+                    iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/60/Map_pin_icon.png', // Standard pin
+                    iconSize: [40, 40], // Fixed size
+                    iconAnchor: [20, 40], // Anchor at the bottom of the pin
                     popupAnchor: [0, -40]
                 })
             }).addTo(map)
@@ -114,7 +114,7 @@
         }
 
         // Variable for live location marker
-        var liveMarker;
+        var liveMarker; 
 
         // Function to get and show the driver's location when button is clicked
         document.getElementById('locationBtn').onclick = function() {
