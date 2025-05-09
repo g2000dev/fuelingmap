@@ -45,7 +45,7 @@
         .leaflet-live-location-icon {
             width: 40px; /* Bigger size for better visibility */
             height: 40px;
-            background-color: red;
+            background-color: red; /* Red color for current location */
             border-radius: 50%;
             color: white;
             text-align: center;
@@ -56,11 +56,11 @@
 
         /* Fuel Station Pin Style */
         .leaflet-fuel-station-icon {
-            width: 30px;
+            width: 30px; /* Adjust size of fuel station icon */
             height: 30px;
-            background-color: green;
+            background-color: transparent; /* No background color */
             border-radius: 50%;
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Map_pin_icon.svg/1024px-Map_pin_icon.svg.png');
+            background-image: url('https://res.cloudinary.com/djjpjunim/image/upload/v1746820378/fuel_cqjr10.svg'); /* Fuel station SVG from Cloudinary */
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -120,6 +120,7 @@
         const stations = [
             {lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON"},
             {lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"}
+            // Add more fuel stations as needed
         ];
 
         var map = L.map('map').setView([43.651070, -79.347015], 10); // Default Toronto location
@@ -158,7 +159,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: '📍'  // Custom icon (can use an emoji for now)
+                                html: '' // Custom icon without text, using the red circle as the current location pin
                             })
                         }).addTo(map);
                     } else {
