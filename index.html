@@ -90,14 +90,8 @@
             margin-top: 10px;
         }
 
-        /* For popups */
         .leaflet-popup-content-wrapper {
             max-width: 300px;
-        }
-
-        .leaflet-popup-content {
-            font-size: 14px;
-            padding: 5px;
         }
     </style>
 </head>
@@ -116,13 +110,13 @@
 
         var map = L.map('map').setView([43.651070, -79.347015], 10); // Default Toronto location
 
+        // Tile Layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
         var liveMarker;
 
-        // Use watchPosition to track live location updates
         document.getElementById('locationBtn').onclick = function() {
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(function(position) {
@@ -131,12 +125,12 @@
 
                     map.setView([lat, lon], 14);
 
-                    // Add or update live location marker (circle marker with custom color)
+                    // Update the live location marker
                     if (!liveMarker) {
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: ''  // Empty text for custom location pin
+                                html: 'You are here'
                             })
                         }).addTo(map);
                     } else {
@@ -145,7 +139,13 @@
 
                     liveMarker.bindPopup("You're here!");
 
-                    calculateDistances(lat, lon); // Trigger distance calculation after location update
+                    // Calculate and show distances from current location to all fuel stations
+                    stations.forEach(function(station) {
+                        var distance = getDistance(lat, lon, station.lat, station.lon);
+                        var marker = L.marker([station.lat, station.lon]).addTo(map)
+                            .bindPopup(`<b>${station.name}</b><br>Distance: ${distance.toFixed(2)} km`)
+                            .openPopup();
+                    });
                 });
             }
         };
@@ -169,27 +169,6 @@
         });
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radius of the Earth in km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c;
-            return distance;
-        }
-
-        function calculateDistances(userLat, userLon) {
-            stations.forEach(function(station) {
-                var distance = getDistance(userLat, userLon, station.lat, station.lon);
-                var marker = L.marker([station.lat, station.lon]).addTo(map)
-                    .bindPopup(`<b>${station.name}</b><br>Distance: ${distance.toFixed(2)} km`)
-                    .openPopup();
-            });
-        }
-
-        function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; // Radius of the Earth in km
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
@@ -226,7 +205,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: ''  // Empty text for custom location pin
+                                html: 'You are here'
                             })
                         }).addTo(map);
                     } else {
