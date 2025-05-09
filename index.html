@@ -230,3 +230,13 @@
                             })
                         }).addTo(map);
                     } else {
+                        liveMarker.setLatLng([lat, lon]);
+                    }
+
+                    liveMarker.bindPopup("You're here!");
+                });
+            }
+        };
+    </script>
+</body>
+</html>
