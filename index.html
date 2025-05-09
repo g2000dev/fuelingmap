@@ -1,124 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fueling Stations Map for Drivers</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <style>
-    #map {
-      height: 80vh;
-      width: 100%;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fueling Stations Map for Drivers</title>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 75vh;
+            width: 100%;
+            margin-top: 50px;
+        }
 
-    #locationBtn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 10px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      z-index: 999;
-    }
+        #locationBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            z-index: 9999;
+            width: 150px;
+        }
 
-    .leaflet-popup-content {
-      text-align: center;
-    }
+        #title {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 22px;
+            color: black;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 15px;
+            border-radius: 5px;
+            z-index: 9999;
+        }
 
-    /* Adjusting size for the SVG icons */
-    .leaflet-icon {
-      width: 40px;
-      height: 40px;
-    }
-    
-    /* Style for the title */
-    .map-title {
-      font-size: 24px;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 10px;
-    }
-  </style>
+        /* Custom Location Pin Style */
+        .leaflet-live-location-icon {
+            width: 50px;
+            height: 50px;
+            background-color: transparent;
+            border-radius: 50%;
+            background-image: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/svgs/solid/map-pin.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .leaflet-live-location-icon.green {
+            filter: hue-rotate(90deg); /* Green color */
+        }
+
+        .leaflet-live-location-icon.red {
+            filter: hue-rotate(0deg); /* Red color */
+        }
+
+        .leaflet-fuel-station-icon {
+            width: 40px;
+            height: 40px;
+            background-color: green;
+            border-radius: 50%;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/79/Fuel_pump_icon.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .leaflet-popup-content {
+            font-size: 14px;
+        }
+
+        .popup-options {
+            margin-top: 10px;
+        }
+
+        .popup-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .popup-button:hover {
+            background-color: #45a049;
+        }
+
+        .popup-button-container {
+            margin-top: 10px;
+        }
+
+        .leaflet-popup-content-wrapper {
+            max-width: 300px;
+        }
+
+        /* Mobile specific styling */
+        @media screen and (max-width: 768px) {
+            #title {
+                font-size: 18px;
+                top: 5px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            #locationBtn {
+                width: 100px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div id="title">Fueling Stations Map for Drivers</div>
+    <button id="locationBtn">Show My Location</button>
+    <div id="map"></div>
 
-  <div class="map-title">Fueling Stations Map for Drivers</div>
-  <div id="map"></div>
-  <button id="locationBtn">Show My Location</button>
+    <script>
+        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67'; // Your OpenRouteService API key
 
-  <script>
-    // Initialize the map
-    const map = L.map('map').setView([43.7, -79.42], 12); // Initial position near Toronto
+        const stations = [
+            {lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON"},
+            {lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"}
+        ];
 
-    // Set the tile layer (OpenStreetMap)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+        var map = L.map('map').setView([43.651070, -79.347015], 10); // Default Toronto location
 
-    // SVG icons for fuel stations and current location
-    const fuelIcon = L.icon({
-      iconUrl: 'https://www.svgrepo.com/show/354776/fuel-14.svg',
-      iconSize: [30, 30], // Set size
-      iconAnchor: [15, 30], // Anchor at the bottom
-      popupAnchor: [0, -30] // Popup above the icon
-    });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
-    const locationIcon = L.icon({
-      iconUrl: 'https://www.svgrepo.com/show/507356/location.svg',
-      iconSize: [40, 40], // Set size
-      iconAnchor: [20, 40], // Anchor at the bottom
-      popupAnchor: [0, -40] // Popup above the icon
-    });
+        var liveMarker;
+        var isMapMoving = false;
+        var locationUpdateTimeout;
 
-    // Fuel station locations
-    const stations = [
-      { lat: 43.6532, lon: -79.3832, name: "BVD Brampton, 130 Delta Park, Brampton, ON", distance: "18.18 km" },
-      { lat: 43.6395, lon: -79.4712, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON", distance: "30.36 km" }
-      // Add more fuel stations as needed
-    ];
-
-    // Add fuel stations to the map
-    stations.forEach(station => {
-      L.marker([station.lat, station.lon], { icon: fuelIcon })
-        .addTo(map)
-        .bindPopup(`
-          <strong>${station.name}</strong><br>
-          Distance: ${station.distance}<br>
-          <a href="https://www.google.com/maps?q=${station.lat},${station.lon}" target="_blank">Open in Google Maps</a>
-        `);
-    });
-
-    // Show current location
-    let currentLocation = null;
-
-    function getCurrentLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          currentLocation = [position.coords.latitude, position.coords.longitude];
-          map.setView(currentLocation, 13);
-          L.marker(currentLocation, { icon: locationIcon }).addTo(map)
-            .bindPopup("You are here!")
-            .openPopup();
-        }, function(error) {
-          alert('Error getting location: ' + error.message);
+        map.on('moveend', function() {
+            isMapMoving = true;
+            clearTimeout(locationUpdateTimeout);
+            locationUpdateTimeout = setTimeout(function() {
+                isMapMoving = false;
+            }, 3000);
         });
-      } else {
-        alert("Geolocation is not supported by this browser.");
-      }
-    }
 
-    // Show location when the button is pressed
-    document.getElementById('locationBtn').addEventListener('click', function() {
-      getCurrentLocation();
-    });
+        function getLiveLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lon = position.coords.longitude;
 
-    // Initially load location
-    getCurrentLocation();
+                    if (!isMapMoving) {
+                        map.setView([lat, lon], 14);
+                    }
 
-  </script>
+                    if (!liveMarker) {
+                        liveMarker = L.marker([lat, lon], {
+                            icon: L.divIcon({
+                                className: 'leaflet-live-location-icon',
+                                html: '' // Custom icon without text
+                            })
+                        }).addTo(map);
+                    } else {
+                        liveMarker.setLatLng([lat, lon]);
+                    }
+
+                    liveMarker.bindPopup("You're here!");
+
+                    stations.forEach(function(station) {
+                        var straightLineDistance = calculateDistance(lat, lon, station.lat, station.lon);
+                        var marker = L.marker([station.lat, station.lon], {
+                            icon: L.divIcon({
+                                className: 'leaflet-fuel-station-icon'
+                            })
+                        }).addTo(map)
+                            .bindPopup(`
+                                <b>${station.name}</b><br>Distance: ${straightLineDistance.toFixed(2)} km
+                                <div class="popup-options">
+                                    <button class="popup-button" onclick="copyAddress('${station.name}')">Copy Address</button>
+                                    <button class="popup-button" onclick="openGoogleMaps('${station.name}')">Open in Google Maps</button>
+                                </div>
+                            `);
+
+                        var cachedDistance = localStorage.getItem(station.name);
+                        if (cachedDistance) {
+                            marker.setPopupContent(`
+                                <b>${station.name}</b><br>Driving Distance: ${cachedDistance} km
+                                <div class="popup-options">
+                                    <button class="popup-button" onclick="copyAddress('${station.name}')">Copy Address</button>
+                                    <button class="popup-button" onclick="openGoogleMaps('${station.name}')">Open in Google Maps</button>
+                                </div>
+                            `);
+                        } else {
+                            calculateDrivingDistance(lat, lon, station.lat, station.lon, marker);
+                        }
+                    });
+                });
+            }
+        }
+
+        document.getElementById('locationBtn').onclick = function() {
+            getLiveLocation();
+        };
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the Earth in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c;
+            return distance;
+        }
+
+        function calculateDrivingDistance(lat1, lon1, lat2, lon2, marker) {
+            var url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${lon1},${lat1}&end=${lon2},${lat2}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const drivingDistance = data.features[0].properties.segments[0].distance / 1000;
+                    localStorage.setItem(marker.getPopup().getContent(), drivingDistance);
+                    marker.setPopupContent(`
+                        <b>${marker.getPopup().getContent()}</b><br>Driving Distance: ${drivingDistance.toFixed(2)} km
+                    `);
+                })
+                .catch(err => console.log('API error: ' + err));
+        }
+
+        window.onload = function() {
+            getLiveLocation();
+        };
+
+        function copyAddress(address) {
+            var textArea = document.createElement("textarea");
+            textArea.value = address;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert("Address copied to clipboard!");
+        }
+
+        function openGoogleMaps(address) {
+            var mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
+            window.open(mapsUrl, '_blank');
+        }
+    </script>
 </body>
 </html>
