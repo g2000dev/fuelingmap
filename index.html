@@ -7,14 +7,12 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        /* Map container */
         #map {
             height: 75vh;
             width: 100%;
             margin-top: 50px;
         }
-        
-        /* Get Location button */
+
         #locationBtn {
             position: absolute;
             top: 10px;
@@ -29,7 +27,6 @@
             width: 150px;
         }
 
-        /* Custom title above the map */
         #title {
             position: absolute;
             top: 10px;
@@ -44,7 +41,6 @@
             z-index: 9999;
         }
 
-        /* Custom pin styling for fuel stations */
         .leaflet-marker-icon {
             width: 40px;
             height: 40px;
@@ -55,24 +51,21 @@
             line-height: 40px;
         }
 
-        /* Custom icon for current location */
         .leaflet-live-location-icon {
-            width: 80px;
-            height: 80px;
-            background-color: #FF6347; /* Tomato color for current location */
-            border-radius: 70%;
+            width: 40px;
+            height: 40px;
+            background-color: #FF6347;
+            border-radius: 50%;
             text-align: center;
-            line-height: 10px;
-            color: red;
-            font-size: 12px;
+            line-height: 40px;
+            color: white;
+            font-size: 18px;
         }
 
-        /* Styling for the popups */
         .leaflet-popup-content {
             font-size: 14px;
         }
 
-        /* Custom button for opening Google Maps */
         .popup-options {
             margin-top: 10px;
         }
@@ -100,14 +93,14 @@
     <div id="map"></div>
 
     <script>
-        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // Your OpenRouteService API key
+        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';
 
         const stations = [
             {lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON"},
             {lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"}
         ];
 
-        var map = L.map('map').setView([43.651070, -79.347015], 10); // Default Toronto location
+        var map = L.map('map').setView([43.651070, -79.347015], 10);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
@@ -115,7 +108,6 @@
 
         var liveMarker;
 
-        // Function to get the user's location and update the map
         document.getElementById('locationBtn').onclick = function() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
@@ -124,7 +116,6 @@
 
                     map.setView([lat, lon], 14);
 
-                    // Add or update live location marker (circle marker with custom color)
                     if (!liveMarker) {
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
@@ -138,12 +129,11 @@
 
                     liveMarker.bindPopup("You're here!");
 
-                    calculateDistances(lat, lon);  // Trigger the distance calculation
+                    calculateDistances(lat, lon);
                 });
             }
         };
 
-        // Add markers for each fuel station
         stations.forEach(function(station) {
             var marker = L.marker([station.lat, station.lon]).addTo(map)
                 .bindPopup(`
@@ -162,7 +152,6 @@
                 });
         });
 
-        // Function to calculate the distance between two coordinates using the Haversine formula
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; // Radius of the Earth in km
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -171,11 +160,10 @@
                       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
                       Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c; // Distance in km
+            const distance = R * c;
             return distance;
         }
 
-        // Function to calculate distances from the user's location to all fuel stations
         function calculateDistances(userLat, userLon) {
             stations.forEach(function(station, index) {
                 var distance = getDistance(userLat, userLon, station.lat, station.lon);
@@ -185,7 +173,6 @@
             });
         }
 
-        // Haversine formula to calculate distance between two coordinates
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; // Radius of the Earth in km
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -194,11 +181,10 @@
                       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
                       Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c; // Distance in km
+            const distance = R * c;
             return distance;
         }
 
-        // Function to copy the address to clipboard
         function copyAddress(address) {
             var textArea = document.createElement("textarea");
             textArea.value = address;
@@ -209,7 +195,6 @@
             alert("Address copied to clipboard!");
         }
 
-        // Function to open the address in Google Maps
         function openGoogleMaps(address) {
             var mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
             window.open(mapsUrl, '_blank');
