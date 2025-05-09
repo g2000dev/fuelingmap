@@ -54,10 +54,17 @@
             margin-left: -25px;  /* Center the icon horizontally */
         }
 
-        /* Adjust for zoom buttons and other elements */
+        /* Ensure popups and buttons remain readable */
         .leaflet-popup-content {
             font-size: 14px;
         }
+
+        /* Adjust map buttons for visibility on mobile */
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out {
+            z-index: 100; /* Ensure zoom buttons are above other elements */
+        }
+
     </style>
 </head>
 <body>
@@ -83,7 +90,7 @@
             // Add more stations here
         ];
 
-        // Create a green icon for fuel stations (Leaflet Default Pin)
+        // Create a custom green icon for fuel stations (Leaflet Default Pin)
         var greenIcon = L.icon({
             iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default Leaflet pin (green)
             iconSize: [50, 50], // Fixed size for all zoom levels (larger than default)
