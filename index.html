@@ -41,6 +41,7 @@
             z-index: 9999;
         }
 
+        /* Custom Location Pin Style */
         .leaflet-live-location-icon {
             width: 50px;
             height: 50px;
@@ -105,8 +106,8 @@
         }).addTo(map);
 
         var liveMarker;
+        var distanceToStation;
 
-        // Function to get the user's live location
         function getLiveLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(function(position) {
@@ -115,12 +116,12 @@
 
                     map.setView([lat, lon], 14); // Zoom into live location
 
-                    // Add or update live location marker (circle marker with custom color)
+                    // Update the live location pin
                     if (!liveMarker) {
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: 'You are here'
+                                html: ''  // Empty text for custom location pin
                             })
                         }).addTo(map);
                     } else {
