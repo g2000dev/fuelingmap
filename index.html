@@ -54,16 +54,17 @@
             border: 2px solid white; /* Add a white border for better visibility */
         }
 
-        /* Fuel Station Pin Style - Green Color */
+        /* Fuel Station Pin Style */
         .leaflet-fuel-station-icon {
-            width: 50px; /* Increased size for better visibility */
-            height: 50px;
-            background-color: transparent; /* No background color */
+            width: 40px; /* Increase size for better visibility */
+            height: 40px;
+            background-color: transparent; /* Transparent background */
             border-radius: 50%;
-            background-image: url('https://res.cloudinary.com/djjpjunim/image/upload/v1746820378/fuel_cqjr10.svg'); /* Fuel Station Icon (SVG) */
+            background-image: url('https://www.svgrepo.com/show/354776/fuel-14.svg'); /* Fuel Station SVG Icon */
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
+            filter: hue-rotate(90deg); /* Adjust color to green */
         }
 
         .leaflet-popup-content {
@@ -231,4 +232,30 @@
 
                     // Update the popup with the cached distance
                     marker.setPopupContent(`
-                        <b>${marker.getPopup().getContent()}</b><br>Driving Distance: ${driving
+                        <b>${marker.getPopup().getContent()}</b><br>Driving Distance: ${drivingDistance.toFixed(2)} km
+                    `);
+                })
+                .catch(err => console.log('API error: ' + err));
+        }
+
+        window.onload = function() {
+            getLiveLocation();
+        };
+
+        function copyAddress(address) {
+            var textArea = document.createElement("textarea");
+            textArea.value = address;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert("Address copied to clipboard!");
+        }
+
+        function openGoogleMaps(address) {
+            var mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
+            window.open(mapsUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
