@@ -52,14 +52,14 @@
         }
 
         .leaflet-live-location-icon {
-            width: 60px;
-            height: 60px;
-            background-color: #FF6347; /* Tomato color for current location */
+            width: 40px;
+            height: 40px;
+            background-color: red; /* Red color for current location */
             border-radius: 50%;
-            text-align: center;
-            line-height: 60px;
             color: white;
-            font-size: 24px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 20px;
         }
 
         .leaflet-popup-content {
@@ -130,7 +130,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: 'You are here'
+                                html: ''  // Empty text for custom location pin
                             })
                         }).addTo(map);
                     } else {
@@ -211,7 +211,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: 'You are here'
+                                html: ''  // Empty text for custom location pin
                             })
                         }).addTo(map);
                     } else {
