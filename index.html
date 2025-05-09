@@ -26,15 +26,21 @@
         }
         #title {
             position: absolute;
-            top: 15px;
-            left: 15px;
-            font-size: 20px;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 22px;
             color: black;
             font-weight: bold;
-            background-color: rgba(255, 255, 255, 0.7);
-            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 15px;
             border-radius: 5px;
             z-index: 9999;
+        }
+        .leaflet-marker-icon {
+            width: 35px;
+            height: 35px;
+            background-size: contain;
         }
     </style>
 </head>
@@ -54,7 +60,7 @@
         var liveMarker; // Variable for live location
 
         // OpenRouteService API key
-        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // Replace with your actual API key
+        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // Your actual key
 
         // Sample fuel station data (replace with actual stations)
         const stations = [
