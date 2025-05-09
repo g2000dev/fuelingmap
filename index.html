@@ -10,6 +10,7 @@
         #map {
             height: 75vh;
             width: 100%;
+            margin-top: 50px; /* Space for the Get Location button */
         }
         #locationBtn {
             position: absolute;
@@ -24,9 +25,10 @@
             z-index: 9999;
             width: 150px;
         }
+        /* Custom title above the map */
         #title {
             position: absolute;
-            top: 10px;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
             font-size: 22px;
@@ -37,49 +39,62 @@
             border-radius: 5px;
             z-index: 9999;
         }
+        /* Custom pin styling for fuel stations */
         .leaflet-marker-icon {
-            width: 35px;
-            height: 35px;
-            background-size: contain;
+            width: 40px;
+            height: 40px;
+            background-color: green;
+            border-radius: 50%;
+            color: white;
+            text-align: center;
+            line-height: 40px;
+        }
+        /* Styling for the popups */
+        .leaflet-popup-content {
+            font-size: 14px;
+        }
+        /* Ensures the zoom buttons are visible on top */
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out {
+            z-index: 100;
         }
     </style>
 </head>
 <body>
+    <!-- Title above the map -->
     <div id="title">Fueling Stations Map for Drivers</div>
+    <!-- Button to get current location -->
     <button id="locationBtn">Get My Location</button>
+    <!-- Map container -->
     <div id="map"></div>
 
     <script>
-        // Initialize the map and set the default view to Toronto (or any starting location)
-        var map = L.map('map').setView([43.651070, -79.347015], 10); // Toronto coordinates as default
+        // Create map with default coordinates (Toronto)
+        var map = L.map('map').setView([43.651070, -79.347015], 10); // Toronto
 
+        // Add OpenStreetMap layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        var liveMarker; // Variable for live location
-
-        // OpenRouteService API key
-        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // Your actual key
-
-        // Sample fuel station data (replace with actual stations)
-        const stations = [
+        var liveMarker; // Variable for live location marker
+        var stations = [
             {lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON"},
             {lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"}
             // Add more stations as needed
         ];
 
-        // Function to get the user's location and add a marker
+        // Function to get the user's location and update the map
         document.getElementById('locationBtn').onclick = function() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     var lat = position.coords.latitude;
                     var lon = position.coords.longitude;
 
-                    // Set the map's center to the user's location
+                    // Update map view to the user's location
                     map.setView([lat, lon], 14);
 
-                    // Add a marker for the user's location
+                    // Add or update live location marker
                     if (!liveMarker) {
                         liveMarker = L.marker([lat, lon]).addTo(map);
                     } else {
@@ -88,61 +103,53 @@
 
                     liveMarker.bindPopup("You're here!");
 
-                    // Call the function to calculate distances to fuel stations
+                    // Call function to calculate distances to fuel stations
                     calculateDistances(lat, lon);
                 });
             }
         };
 
-        // Add markers for each fuel station
-        stations.forEach(function(station) {
-            L.marker([station.lat, station.lon]).addTo(map)
-                .bindPopup(`<b>${station.name}</b><br>Distance: <span class="distance">Calculating...</span>`)
-                .on('click', function() {
-                    // When a station is clicked, calculate the distance from the user's location
-                    if (liveMarker) {
-                        const userLat = liveMarker.getLatLng().lat;
-                        const userLon = liveMarker.getLatLng().lng;
-                        calculateDistance(userLat, userLon, station.lat, station.lon, this);
-                    }
-                });
-        });
-
-        // Function to calculate the distance between two coordinates using OpenRouteService
-        function calculateDistance(lat1, lon1, lat2, lon2, stationPopup = null) {
-            const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${lon1},${lat1}&end=${lon2},${lat2}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const distance = data.features[0].properties.segments[0].distance / 1000;  // Convert to km
-                    const formattedDistance = distance.toFixed(2);
-
-                    if (stationPopup) {
-                        stationPopup.setPopupContent(stationPopup.getPopup().getContent().replace('Calculating...', `${formattedDistance} km`));
-                    }
-                })
-                .catch(err => console.error('Error fetching distance data:', err));
-        }
-
-        // Function to calculate distances from the user's location to all fuel stations
-        function calculateDistances(lat, lon) {
-            stations.forEach(function(station, index) {
-                const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${lon},${lat}&end=${station.lon},${station.lat}`;
-
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        const distance = data.features[0].properties.segments[0].distance / 1000;  // Convert to km
-                        const formattedDistance = distance.toFixed(2);
-
-                        // Update the station's popup with the calculated distance
-                        const stationMarker = map._layers[Object.keys(map._layers)[index + 1]];
-                        stationMarker.getPopup().setContent(`<b>${station.name}</b><br>Distance: ${formattedDistance} km`);
-                    })
-                    .catch(err => console.error('Error fetching distance data:', err));
+        // Function to calculate distances between user and fuel stations
+        function calculateDistances(userLat, userLon) {
+            stations.forEach(function(station) {
+                var distance = getDistance(userLat, userLon, station.lat, station.lon);
+                var marker = L.marker([station.lat, station.lon]).addTo(map)
+                    .bindPopup(`<b>${station.name}</b><br>Distance: ${distance.toFixed(2)} km`)
+                    .openPopup();
             });
         }
+
+        // Haversine formula to calculate distance between two coordinates
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the Earth in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c; // Distance in km
+            return distance;
+        }
+
+        // Automatically fetch and update location on page load
+        window.onload = function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lon = position.coords.longitude;
+
+                    // Update live marker location on map
+                    if (!liveMarker) {
+                        liveMarker = L.marker([lat, lon]).addTo(map);
+                    } else {
+                        liveMarker.setLatLng([lat, lon]);
+                    }
+
+                    liveMarker.bindPopup("You're here!");
+                });
+            }
+        };
     </script>
 </body>
 </html>
