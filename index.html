@@ -91,6 +91,8 @@
     <div id="map"></div>
 
     <script>
+        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // Your OpenRouteService API key
+
         const stations = [
             {lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON"},
             {lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"}
@@ -103,7 +105,6 @@
         }).addTo(map);
 
         var liveMarker;
-        var distanceToStation;
 
         function getLiveLocation() {
             if (navigator.geolocation) {
@@ -129,24 +130,30 @@
 
                     // Calculate and show distances from current location to all fuel stations
                     stations.forEach(function(station) {
-                        var distance = calculateDistance(lat, lon, station.lat, station.lon);
+                        var straightLineDistance = calculateDistance(lat, lon, station.lat, station.lon);
                         var marker = L.marker([station.lat, station.lon]).addTo(map)
                             .bindPopup(`
-                                <b>${station.name}</b><br>Distance: ${distance.toFixed(2)} km
+                                <b>${station.name}</b><br>Distance: ${straightLineDistance.toFixed(2)} km
                                 <div class="popup-options">
                                     <button class="popup-button" onclick="copyAddress('${station.name}')">Copy Address</button>
                                     <button class="popup-button" onclick="openGoogleMaps('${station.name}')">Open in Google Maps</button>
                                 </div>
                             `);
-                    });
 
-                    // Calculate distance once to make sure we aren't repeatedly calculating
-                    stations.forEach(function(station) {
-                        var distance = calculateDistance(lat, lon, station.lat, station.lon);
-                        updateDistanceDisplay(distance);
+                        // Check if driving distance is cached, else fetch from API
+                        var cachedDistance = localStorage.getItem(station.name);
+                        if (cachedDistance) {
+                            marker.setPopupContent(`
+                                <b>${station.name}</b><br>Driving Distance: ${cachedDistance} km
+                                <div class="popup-options">
+                                    <button class="popup-button" onclick="copyAddress('${station.name}')">Copy Address</button>
+                                    <button class="popup-button" onclick="openGoogleMaps('${station.name}')">Open in Google Maps</button>
+                                </div>
+                            `);
+                        } else {
+                            calculateDrivingDistance(lat, lon, station.lat, station.lon, marker);
+                        }
                     });
-                }, function(error) {
-                    alert("Error getting location: " + error.message);
                 });
             }
         }
@@ -155,7 +162,7 @@
             getLiveLocation();
         };
 
-        // Function to calculate distance between two points
+        // Function to calculate straight-line distance
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; // Radius of the Earth in km
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -168,9 +175,27 @@
             return distance;
         }
 
-        function updateDistanceDisplay(distance) {
-            document.querySelector('.distance').textContent = `${distance.toFixed(2)} km`;
+        // Function to fetch driving distance from API and cache it
+        function calculateDrivingDistance(lat1, lon1, lat2, lon2, marker) {
+            var url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${lon1},${lat1}&end=${lon2},${lat2}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const drivingDistance = data.features[0].properties.segments[0].distance / 1000; // Distance in km
+                    localStorage.setItem(marker.getPopup().getContent(), drivingDistance); // Cache the driving distance
+
+                    // Update the popup with the cached distance
+                    marker.setPopupContent(`
+                        <b>${marker.getPopup().getContent()}</b><br>Driving Distance: ${drivingDistance.toFixed(2)} km
+                    `);
+                })
+                .catch(err => console.log('API error: ' + err));
         }
+
+        window.onload = function() {
+            getLiveLocation();
+        };
 
         function copyAddress(address) {
             var textArea = document.createElement("textarea");
@@ -186,10 +211,6 @@
             var mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
             window.open(mapsUrl, '_blank');
         }
-
-        window.onload = function() {
-            getLiveLocation();
-        };
     </script>
 </body>
 </html>
