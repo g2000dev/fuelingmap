@@ -51,16 +51,15 @@
             line-height: 50px;
         }
 
-        /* Improved live location pin */
         .leaflet-live-location-icon {
-            width: 40px;
-            height: 40px;
-            background-color: red; /* Red color for current location */
+            width: 60px;
+            height: 60px;
+            background-color: #FF6347; /* Tomato color for current location */
             border-radius: 50%;
-            color: white;
             text-align: center;
-            line-height: 40px;
-            font-size: 20px;
+            line-height: 60px;
+            color: white;
+            font-size: 24px;
         }
 
         .leaflet-popup-content {
@@ -116,6 +115,7 @@
         }).addTo(map);
 
         var liveMarker;
+        var distanceToStation;
 
         document.getElementById('locationBtn').onclick = function() {
             if (navigator.geolocation) {
@@ -123,14 +123,14 @@
                     var lat = position.coords.latitude;
                     var lon = position.coords.longitude;
 
-                    map.setView([lat, lon], 14);
+                    map.setView([lat, lon], 14); // Zoom into live location
 
                     // Add or update live location marker (circle marker with custom color)
                     if (!liveMarker) {
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: ''  // Empty text for custom location pin
+                                html: 'You are here'
                             })
                         }).addTo(map);
                     } else {
@@ -211,7 +211,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: ''  // Empty text for custom location pin
+                                html: 'You are here'
                             })
                         }).addTo(map);
                     } else {
