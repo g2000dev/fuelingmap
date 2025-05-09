@@ -43,7 +43,7 @@
 
         /* Custom Location Pin Style */
         .leaflet-live-location-icon {
-            width: 60px; /* Increased size for better visibility */
+            width: 60px; /* Larger size for better visibility */
             height: 60px;
             background-color: red; /* Red color for current location */
             border-radius: 50%;
@@ -106,10 +106,6 @@
                 left: 50%;
                 transform: translateX(-50%);
             }
-
-            #locationBtn {
-                width: 100px;
-            }
         }
     </style>
 </head>
@@ -135,7 +131,6 @@
         var liveMarker;
         var isMapMoving = false;
         var locationUpdateTimeout;
-        var previousLat = null, previousLon = null;
 
         // Watch for map movement to disable auto-center
         map.on('moveend', function() {
@@ -158,24 +153,19 @@
                         map.setView([lat, lon], 14); // Zoom into live location
                     }
 
-                    // Avoid creating a new liveMarker if the location hasn't changed
-                    if (lat !== previousLat || lon !== previousLon) {
-                        if (!liveMarker) {
-                            liveMarker = L.marker([lat, lon], {
-                                icon: L.divIcon({
-                                    className: 'leaflet-live-location-icon',
-                                    html: '📍'  // Custom icon (can use an emoji for now)
-                                })
-                            }).addTo(map);
-                        } else {
-                            liveMarker.setLatLng([lat, lon]);
-                        }
-
-                        liveMarker.bindPopup("You're here!");
-
-                        previousLat = lat;
-                        previousLon = lon;
+                    // Update the live location pin
+                    if (!liveMarker) {
+                        liveMarker = L.marker([lat, lon], {
+                            icon: L.divIcon({
+                                className: 'leaflet-live-location-icon',
+                                html: '📍'  // Custom icon (can use an emoji for now)
+                            })
+                        }).addTo(map);
+                    } else {
+                        liveMarker.setLatLng([lat, lon]);
                     }
+
+                    liveMarker.bindPopup("You're here!");
 
                     // Calculate and show distances from current location to all fuel stations
                     stations.forEach(function(station) {
@@ -207,8 +197,6 @@
                             calculateDrivingDistance(lat, lon, station.lat, station.lon, marker);
                         }
                     });
-                }, function(error) {
-                    alert("Unable to retrieve location. Please check location settings.");
                 });
             }
         }
