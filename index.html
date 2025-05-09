@@ -126,7 +126,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: 'You are here'
+                                liveMarker.bindPopup("You're here!");
                             })
                         }).addTo(map);
                     } else {
