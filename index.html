@@ -90,8 +90,14 @@
             margin-top: 10px;
         }
 
+        /* For popups */
         .leaflet-popup-content-wrapper {
             max-width: 300px;
+        }
+
+        .leaflet-popup-content {
+            font-size: 14px;
+            padding: 5px;
         }
     </style>
 </head>
@@ -125,7 +131,7 @@
 
                     map.setView([lat, lon], 14);
 
-                    // Update the live location marker
+                    // Add or update live location marker (circle marker with custom color)
                     if (!liveMarker) {
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
@@ -141,10 +147,15 @@
 
                     // Calculate and show distances from current location to all fuel stations
                     stations.forEach(function(station) {
-                        var distance = getDistance(lat, lon, station.lat, station.lon);
-                        var marker = L.marker([station.lat, station.lon]).addTo(map)
-                            .bindPopup(`<b>${station.name}</b><br>Distance: ${distance.toFixed(2)} km`)
-                            .openPopup();
+                        var distance = calculateDistance(lat, lon, station.lat, station.lon);
+                        marker = L.marker([station.lat, station.lon]).addTo(map)
+                            .bindPopup(`
+                                <b>${station.name}</b><br>Distance: ${distance.toFixed(2)} km
+                                <div class="popup-options">
+                                    <button class="popup-button" onclick="copyAddress('${station.name}')">Copy Address</button>
+                                    <button class="popup-button" onclick="openGoogleMaps('${station.name}')">Open in Google Maps</button>
+                                </div>
+                            `);
                     });
                 });
             }
@@ -168,6 +179,7 @@
                 });
         });
 
+        // Function to calculate distance between two points
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371; // Radius of the Earth in km
             const dLat = (lat2 - lat1) * Math.PI / 180;
