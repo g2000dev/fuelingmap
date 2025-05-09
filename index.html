@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         #map {
-            height: 75vh;
+            height: 75vh; /* Ensure the map has height */
             width: 100%;
             margin-top: 50px;
         }
@@ -56,15 +56,14 @@
 
         /* Fuel Station Pin Style */
         .leaflet-fuel-station-icon {
-            width: 40px; /* Increase size for better visibility */
-            height: 40px;
-            background-color: transparent; /* Transparent background */
+            width: 50px; /* Increased size for better visibility */
+            height: 50px;
+            background-color: transparent; /* No background color */
             border-radius: 50%;
-            background-image: url('https://www.svgrepo.com/show/354776/fuel-14.svg'); /* Fuel Station SVG Icon */
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/79/Fuel_pump_icon.svg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            filter: hue-rotate(90deg); /* Adjust color to green */
         }
 
         .leaflet-popup-content {
