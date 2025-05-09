@@ -83,16 +83,6 @@
         .leaflet-popup-content-wrapper {
             max-width: 300px;
         }
-
-        /* Mobile specific styling */
-        @media screen and (max-width: 768px) {
-            #title {
-                font-size: 18px;
-                top: 5px;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-        }
     </style>
 </head>
 <body>
@@ -115,36 +105,22 @@
         }).addTo(map);
 
         var liveMarker;
-        var isMapMoving = false;
-        var locationUpdateTimeout;
-
-        // Watch for map movement to disable auto-center
-        map.on('moveend', function() {
-            isMapMoving = true;
-            clearTimeout(locationUpdateTimeout);
-            locationUpdateTimeout = setTimeout(function() {
-                isMapMoving = false; // Reset the flag after a delay
-            }, 3000); // Delay of 3 seconds before re-enabling auto-centering
-        });
 
         // Function to get the user's live location
         function getLiveLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(function(position) {
+                navigator.geolocation.getCurrentPosition(function(position) {
                     var lat = position.coords.latitude;
                     var lon = position.coords.longitude;
 
-                    // Only auto-center the map if it's not being moved manually
-                    if (!isMapMoving) {
-                        map.setView([lat, lon], 14); // Zoom into live location
-                    }
+                    map.setView([lat, lon], 14); // Zoom into live location
 
                     // Update the live location pin
                     if (!liveMarker) {
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: ''  // Empty text for custom location pin
+                                html: 'You are here'
                             })
                         }).addTo(map);
                     } else {
@@ -179,10 +155,13 @@
                             calculateDrivingDistance(lat, lon, station.lat, station.lon, marker);
                         }
                     });
+                }, function(error) {
+                    alert("Location permission denied or failed. Please enable location services.");
                 });
             }
         }
 
+        // Click event for "Show My Location" button
         document.getElementById('locationBtn').onclick = function() {
             getLiveLocation();
         };
