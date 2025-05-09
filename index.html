@@ -90,14 +90,8 @@
             margin-top: 10px;
         }
 
-        /* For popups */
         .leaflet-popup-content-wrapper {
             max-width: 300px;
-        }
-
-        .leaflet-popup-content {
-            font-size: 14px;
-            padding: 5px;
         }
     </style>
 </head>
@@ -116,7 +110,6 @@
 
         var map = L.map('map').setView([43.651070, -79.347015], 10); // Default Toronto location
 
-        // Tile Layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
@@ -136,7 +129,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: 'You are here'
+                                html: ''  // Empty text for custom location pin
                             })
                         }).addTo(map);
                     } else {
@@ -148,7 +141,7 @@
                     // Calculate and show distances from current location to all fuel stations
                     stations.forEach(function(station) {
                         var distance = calculateDistance(lat, lon, station.lat, station.lon);
-                        marker = L.marker([station.lat, station.lon]).addTo(map)
+                        var marker = L.marker([station.lat, station.lon]).addTo(map)
                             .bindPopup(`
                                 <b>${station.name}</b><br>Distance: ${distance.toFixed(2)} km
                                 <div class="popup-options">
@@ -217,7 +210,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: 'You are here'
+                                html: ''  // Empty text for custom location pin
                             })
                         }).addTo(map);
                     } else {
