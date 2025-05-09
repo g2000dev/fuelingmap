@@ -7,7 +7,6 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        /* Map container */
         #map {
             height: 75vh;
             width: 100%;
@@ -51,6 +50,17 @@
             text-align: center;
             line-height: 40px;
         }
+        /* Custom icon for current location */
+        .leaflet-live-location-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #FF6347; /* Tomato color for current location */
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            color: white;
+            font-size: 18px;
+        }
         /* Styling for the popups */
         .leaflet-popup-content {
             font-size: 14px;
@@ -82,7 +92,7 @@
 
     <script>
         // OpenRouteService API key
-        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67'; // Replace with your actual key
+        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // Replace with your actual key
 
         // Sample fuel station data (replace with actual stations)
         const stations = [
@@ -94,7 +104,7 @@
         // Create the map
         var map = L.map('map').setView([43.651070, -79.347015], 10); // Default Toronto location
 
-        // Add OpenStreetMap tile layer
+        // Add OpenStreetMap layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
@@ -111,9 +121,14 @@
                     // Set the map's center to the user's location
                     map.setView([lat, lon], 14);
 
-                    // Add or update live location marker
+                    // Add or update live location marker (circle marker with custom color)
                     if (!liveMarker) {
-                        liveMarker = L.marker([lat, lon]).addTo(map);
+                        liveMarker = L.marker([lat, lon], {
+                            icon: L.divIcon({
+                                className: 'leaflet-live-location-icon',
+                                html: 'You are here'
+                            })
+                        }).addTo(map);
                     } else {
                         liveMarker.setLatLng([lat, lon]);
                     }
@@ -128,7 +143,7 @@
 
         // Add markers for each fuel station
         stations.forEach(function(station) {
-            L.marker([station.lat, station.lon]).addTo(map)
+            var marker = L.marker([station.lat, station.lon]).addTo(map)
                 .bindPopup(`
                     <b>${station.name}</b><br>Distance: <span class="distance">Calculating...</span>
                     <div class="popup-options">
@@ -208,15 +223,10 @@
 
                     // Update live marker location on map
                     if (!liveMarker) {
-                        liveMarker = L.marker([lat, lon]).addTo(map);
+                        liveMarker = L.marker([lat, lon], {
+                            icon: L.divIcon({
+                                className: 'leaflet-live-location-icon',
+                                html: 'You are here'
+                            })
+                        }).addTo(map);
                     } else {
-                        liveMarker.setLatLng([lat, lon]);
-                    }
-
-                    liveMarker.bindPopup("You're here!");
-                });
-            }
-        };
-    </script>
-</body>
-</html>
