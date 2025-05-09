@@ -4,7 +4,6 @@
     <title>Fueling Stations Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> <!-- Material Icons CDN -->
     <style>
         /* Make the map container fill available screen space */
         #map {
@@ -55,17 +54,10 @@
             margin-left: -25px;  /* Center the icon horizontally */
         }
 
-        /* Ensure popups and buttons remain readable */
+        /* Adjust for zoom buttons and other elements */
         .leaflet-popup-content {
             font-size: 14px;
         }
-
-        /* Adjust map buttons for visibility on mobile */
-        .leaflet-control-zoom-in,
-        .leaflet-control-zoom-out {
-            z-index: 100; /* Ensure zoom buttons are above other elements */
-        }
-
     </style>
 </head>
 <body>
@@ -91,16 +83,17 @@
             // Add more stations here
         ];
 
-        // Use Material Icons for Fuel Station Pins
-        var fuelStationIcon = L.divIcon({
-            className: 'material-icons',
-            html: 'place', // Material Icon for location pin
-            iconSize: [50, 50] // Fixed size for all zoom levels
+        // Create a green icon for fuel stations (Leaflet Default Pin)
+        var greenIcon = L.icon({
+            iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default Leaflet pin (green)
+            iconSize: [50, 50], // Fixed size for all zoom levels (larger than default)
+            iconAnchor: [25, 50], // Anchor at the bottom of the pin
+            popupAnchor: [0, -50]
         });
 
         // Add markers for fuel stations with fixed size (no zoom scaling)
         stations.forEach(function(station) {
-            var marker = L.marker([station[0], station[1]], {icon: fuelStationIcon}).addTo(map)
+            var marker = L.marker([station[0], station[1]], {icon: greenIcon}).addTo(map)
                 .bindPopup(`
                     <b>${station[2]}</b>
                     <div class="popup-options">
@@ -142,10 +135,11 @@
                     var driverLon = position.coords.longitude;
 
                     // Create a custom icon for the live location (Google-style pin)
-                    var liveIcon = L.divIcon({
-                        className: 'material-icons live-location-icon',
-                        html: 'my_location',  // Material Icon for "my_location"
-                        iconSize: [50, 50] // Make the live pin larger
+                    var liveIcon = L.icon({
+                        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Standard pin
+                        iconSize: [50, 50], // Increased size for better visibility
+                        iconAnchor: [25, 50], // Adjust to anchor at the bottom of the pin
+                        popupAnchor: [0, -50]
                     });
 
                     // If a live marker exists, update it, otherwise create it
@@ -188,10 +182,11 @@
                     var driverLon = position.coords.longitude;
 
                     // Create a custom icon for the live location (Google-style pin)
-                    var liveIcon = L.divIcon({
-                        className: 'material-icons live-location-icon',
-                        html: 'my_location',  // Material Icon for "my_location"
-                        iconSize: [50, 50] // Larger size for better visibility
+                    var liveIcon = L.icon({
+                        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default pin image
+                        iconSize: [50, 50], // Larger size for better visibility
+                        iconAnchor: [25, 50],
+                        popupAnchor: [0, -50]
                     });
 
                     // Create or update the live location marker
