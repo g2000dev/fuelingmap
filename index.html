@@ -54,13 +54,13 @@
             border: 2px solid white; /* Add a white border for better visibility */
         }
 
-        /* Fuel Station Pin Style */
+        /* Fuel Station Pin Style - Green Color */
         .leaflet-fuel-station-icon {
-            width: 30px; /* Adjust size of fuel station icon */
-            height: 30px;
+            width: 50px; /* Increased size for better visibility */
+            height: 50px;
             background-color: transparent; /* No background color */
             border-radius: 50%;
-            background-image: url('https://res.cloudinary.com/djjpjunim/image/upload/v1746820378/fuel_cqjr10.svg'); /* Fuel station SVG from Cloudinary */
+            background-image: url('https://res.cloudinary.com/djjpjunim/image/upload/v1746820378/fuel_cqjr10.svg'); /* Fuel Station Icon (SVG) */
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -231,30 +231,4 @@
 
                     // Update the popup with the cached distance
                     marker.setPopupContent(`
-                        <b>${marker.getPopup().getContent()}</b><br>Driving Distance: ${drivingDistance.toFixed(2)} km
-                    `);
-                })
-                .catch(err => console.log('API error: ' + err));
-        }
-
-        window.onload = function() {
-            getLiveLocation();
-        };
-
-        function copyAddress(address) {
-            var textArea = document.createElement("textarea");
-            textArea.value = address;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            alert("Address copied to clipboard!");
-        }
-
-        function openGoogleMaps(address) {
-            var mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
-            window.open(mapsUrl, '_blank');
-        }
-    </script>
-</body>
-</html>
+                        <b>${marker.getPopup().getContent()}</b><br>Driving Distance: ${driving
