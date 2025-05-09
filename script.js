@@ -1,31 +1,27 @@
 const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // OpenRouteService API Key
 
-// Fuel Station Data (Hardcoded for now)
 const stations = [
     {lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON"},
     {lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"}
 ];
 
-// Initialize Map
-var map = L.map('map').setView([43.651070, -79.347015], 10); // Toronto as default location
+var map = L.map('map').setView([43.651070, -79.347015], 10); // Default Toronto location
 
-// OpenStreetMap Tile Layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-// Watch for user location and update live position
 var liveMarker;
 var isMapMoving = false;
 var locationUpdateTimeout;
 
-// Handle map movements to disable auto-centering
+// Watch for map movement to disable auto-center
 map.on('moveend', function() {
     isMapMoving = true;
     clearTimeout(locationUpdateTimeout);
     locationUpdateTimeout = setTimeout(function() {
-        isMapMoving = false; // Reset flag after delay
-    }, 3000);
+        isMapMoving = false; // Reset the flag after a delay
+    }, 3000); // Delay of 3 seconds before re-enabling auto-centering
 });
 
 // Function to get live location
@@ -35,17 +31,17 @@ function getLiveLocation() {
             var lat = position.coords.latitude;
             var lon = position.coords.longitude;
 
-            // Auto-center if map hasn't been moved manually
+            // Only auto-center the map if it's not being moved manually
             if (!isMapMoving) {
                 map.setView([lat, lon], 14); // Zoom into live location
             }
 
-            // Update or set live location pin
+            // Update the live location pin
             if (!liveMarker) {
                 liveMarker = L.marker([lat, lon], {
                     icon: L.divIcon({
                         className: 'leaflet-live-location-icon',
-                        html: ''
+                        html: ''  // Custom icon (can use an emoji for now)
                     })
                 }).addTo(map);
             } else {
@@ -54,7 +50,7 @@ function getLiveLocation() {
 
             liveMarker.bindPopup("You're here!");
 
-            // Calculate and show distances from live location to all fuel stations
+            // Calculate and show distances from current location to all fuel stations
             stations.forEach(function(station) {
                 var straightLineDistance = calculateDistance(lat, lon, station.lat, station.lon);
                 var marker = L.marker([station.lat, station.lon], {
@@ -70,7 +66,7 @@ function getLiveLocation() {
                         </div>
                     `);
 
-                // Fetch driving distance if not cached
+                // Check if driving distance is cached, else fetch from API
                 var cachedDistance = localStorage.getItem(station.name);
                 if (cachedDistance) {
                     marker.setPopupContent(`
@@ -88,12 +84,11 @@ function getLiveLocation() {
     }
 }
 
-// Event listener for location button
 document.getElementById('locationBtn').onclick = function() {
     getLiveLocation();
 };
 
-// Calculate straight-line distance (Haversine Formula)
+// Function to calculate straight-line distance
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the Earth in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -106,7 +101,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return distance;
 }
 
-// Fetch driving distance from OpenRouteService API and cache it
+// Function to fetch driving distance from API and cache it
 function calculateDrivingDistance(lat1, lon1, lat2, lon2, marker) {
     var url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${lon1},${lat1}&end=${lon2},${lat2}`;
 
@@ -114,7 +109,7 @@ function calculateDrivingDistance(lat1, lon1, lat2, lon2, marker) {
         .then(response => response.json())
         .then(data => {
             const drivingDistance = data.features[0].properties.segments[0].distance / 1000;
-            localStorage.setItem(marker.getPopup().getContent(), drivingDistance); // Cache the distance
+            localStorage.setItem(marker.getPopup().getContent(), drivingDistance); // Cache the driving distance
 
             // Update the popup with cached distance
             marker.setPopupContent(`
@@ -124,7 +119,7 @@ function calculateDrivingDistance(lat1, lon1, lat2, lon2, marker) {
         .catch(err => console.log('API error: ' + err));
 }
 
-// Copy address to clipboard
+// Function to copy address to clipboard
 function copyAddress(address) {
     var textArea = document.createElement("textarea");
     textArea.value = address;
@@ -135,7 +130,7 @@ function copyAddress(address) {
     alert("Address copied to clipboard!");
 }
 
-// Open location in Google Maps
+// Function to open Google Maps with address
 function openGoogleMaps(address) {
     var mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
     window.open(mapsUrl, '_blank');
