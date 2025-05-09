@@ -42,22 +42,22 @@
         }
 
         .leaflet-marker-icon {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             background-color: green;
             border-radius: 50%;
             color: white;
             text-align: center;
-            line-height: 40px;
+            line-height: 50px;
         }
 
         .leaflet-live-location-icon {
-            width: 40px;
-            height: 40px;
-            background-color: #FF6347;
+            width: 50px;
+            height: 50px;
+            background-color: #FF6347; /* Tomato color for current location */
             border-radius: 50%;
             text-align: center;
-            line-height: 40px;
+            line-height: 50px;
             color: white;
             font-size: 18px;
         }
@@ -85,6 +85,15 @@
         .popup-button:hover {
             background-color: #45a049;
         }
+
+        /* Fix the popup position */
+        .leaflet-popup-content-wrapper {
+            max-width: 300px;
+        }
+
+        .popup-button-container {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -93,14 +102,14 @@
     <div id="map"></div>
 
     <script>
-        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';
+        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // Your OpenRouteService API key
 
         const stations = [
             {lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON"},
             {lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"}
         ];
 
-        var map = L.map('map').setView([43.651070, -79.347015], 10);
+        var map = L.map('map').setView([43.651070, -79.347015], 10); // Default Toronto location
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
@@ -116,11 +125,12 @@
 
                     map.setView([lat, lon], 14);
 
+                    // Add or update live location marker (circle marker with custom color)
                     if (!liveMarker) {
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: 'You are here'
+                                html: ''
                             })
                         }).addTo(map);
                     } else {
@@ -165,7 +175,7 @@
         }
 
         function calculateDistances(userLat, userLon) {
-            stations.forEach(function(station, index) {
+            stations.forEach(function(station) {
                 var distance = getDistance(userLat, userLon, station.lat, station.lon);
                 var marker = L.marker([station.lat, station.lon]).addTo(map)
                     .bindPopup(`<b>${station.name}</b><br>Distance: ${distance.toFixed(2)} km`)
@@ -210,7 +220,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: 'You are here'
+                                html: ''
                             })
                         }).addTo(map);
                     } else {
