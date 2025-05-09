@@ -4,6 +4,7 @@
     <title>Fueling Stations Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> <!-- Material Icons CDN -->
     <style>
         /* Make the map container fill available screen space */
         #map {
@@ -49,11 +50,9 @@
 
         /* Style for live location pin */
         .live-location-icon {
-            width: 50px;  /* Increased size for better visibility */
-            height: 50px;
-            background-color: #ff5722;  /* A visible color */
-            border-radius: 50%;
-            border: 2px solid white;
+            font-size: 50px;  /* Increase size for better visibility */
+            color: #ff5722;  /* A visible color */
+            margin-left: -25px;  /* Center the icon horizontally */
         }
 
         /* Ensure popups and buttons remain readable */
@@ -92,17 +91,15 @@
             // Add more stations here
         ];
 
-        // Use Leaflet's default pin for all markers (fuel stations)
-        var defaultIcon = L.icon({
-            iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default pin icon from Leaflet
-            iconSize: [40, 40], // Larger size for visibility
-            iconAnchor: [20, 40], // Anchor at the bottom of the pin
-            popupAnchor: [0, -40]
-        });
-
-        // Add markers for fuel stations with fixed size (no zoom scaling)
+        // Add markers for fuel stations with Material Icon
         stations.forEach(function(station) {
-            var marker = L.marker([station[0], station[1]], {icon: defaultIcon}).addTo(map)
+            var marker = L.marker([station[0], station[1]], {
+                icon: L.divIcon({
+                    className: 'material-icons live-location-icon',
+                    html: 'place', // Use "place" for location pins
+                    iconSize: [50, 50] // Set size of the icon
+                })
+            }).addTo(map)
                 .bindPopup(`
                     <b>${station[2]}</b>
                     <div class="popup-options">
@@ -143,12 +140,11 @@
                     var driverLat = position.coords.latitude;
                     var driverLon = position.coords.longitude;
 
-                    // Create a custom icon for the live location (Google-style pin)
-                    var liveIcon = L.icon({
-                        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Standard pin
-                        iconSize: [50, 50], // Larger size for better visibility
-                        iconAnchor: [25, 50], // Adjust to anchor at the bottom of the pin
-                        popupAnchor: [0, -50]
+                    // Create a custom icon for the live location (Material Icon)
+                    var liveIcon = L.divIcon({
+                        className: 'material-icons live-location-icon',
+                        html: 'my_location',  // Material Icon for "my_location"
+                        iconSize: [50, 50] // Make the live pin larger
                     });
 
                     // If a live marker exists, update it, otherwise create it
@@ -190,12 +186,11 @@
                     var driverLat = position.coords.latitude;
                     var driverLon = position.coords.longitude;
 
-                    // Create a custom icon for the live location (Google-style pin)
-                    var liveIcon = L.icon({
-                        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default pin image
-                        iconSize: [50, 50], // Larger size for better visibility
-                        iconAnchor: [25, 50],
-                        popupAnchor: [0, -50]
+                    // Create a custom icon for the live location (Material Icon)
+                    var liveIcon = L.divIcon({
+                        className: 'material-icons live-location-icon',
+                        html: 'my_location',  // Material Icon for "my_location"
+                        iconSize: [50, 50] // Make the live pin larger
                     });
 
                     // Create or update the live location marker
