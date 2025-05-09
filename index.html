@@ -7,7 +7,7 @@
     <style>
         /* Make the map container fill available screen space */
         #map {
-            height: 85vh;  /* Set the height to 85% of the viewport height */
+            height: 75vh;  /* Set the height to 75% of the viewport height */
             width: 100%;  /* Make the map width 100% of the screen */
         }
 
@@ -24,6 +24,21 @@
             font-size: 18px;
             z-index: 9999; /* Ensure the button is on top of other elements */
             width: 150px;  /* Set width for better accessibility */
+        }
+
+        /* Banner style for the map */
+        #banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 10000; /* Ensure the banner is above the map */
         }
 
         /* Style for the custom options in the popup */
@@ -68,6 +83,8 @@
     </style>
 </head>
 <body>
+    <!-- Banner for the map -->
+    <div id="banner">Fueling Stations Map for Drivers</div>
     <button id="locationBtn">Get My Location</button>
     <div id="map"></div>
     <script>
