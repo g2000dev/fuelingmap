@@ -5,12 +5,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
-        /* Make the map container fill available screen space */
-        #map {
-            height: 75vh;  /* Set the height to 75% of the viewport height */
-            width: 100%;  /* Make the map width 100% of the screen */
-        }
-
         /* Banner style for the map (positioned above the map to avoid overlap) */
         #banner {
             position: absolute;
@@ -24,6 +18,13 @@
             font-size: 22px;
             font-weight: bold;
             z-index: 10000; /* Ensure the banner is above the map */
+        }
+
+        /* Make the map container fill available screen space */
+        #map {
+            height: 75vh;  /* Set the height to 75% of the viewport height */
+            width: 100%;  /* Make the map width 100% of the screen */
+            margin-top: 70px; /* Add top margin to avoid title overlap */
         }
 
         /* Style for the "Get My Location" button */
