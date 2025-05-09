@@ -1,27 +1,31 @@
 const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // OpenRouteService API Key
 
+// Sample fuel station data (You can add more stations here)
 const stations = [
-    {lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON"},
-    {lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"}
+    { lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON" },
+    { lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON" }
 ];
 
-var map = L.map('map').setView([43.651070, -79.347015], 10); // Default Toronto location
+// Initialize Leaflet map
+var map = L.map('map').setView([43.651070, -79.347015], 10);  // Default location is Toronto
 
+// Tile Layer (OpenStreetMap)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
+// Variable to track the live location marker
 var liveMarker;
 var isMapMoving = false;
 var locationUpdateTimeout;
 
-// Watch for map movement to disable auto-center
+// Event listener for map movement
 map.on('moveend', function() {
     isMapMoving = true;
     clearTimeout(locationUpdateTimeout);
     locationUpdateTimeout = setTimeout(function() {
-        isMapMoving = false; // Reset the flag after a delay
-    }, 3000); // Delay of 3 seconds before re-enabling auto-centering
+        isMapMoving = false; // Reset flag after delay
+    }, 3000); // 3-second delay before re-enabling auto-centering
 });
 
 // Function to get live location
@@ -33,15 +37,15 @@ function getLiveLocation() {
 
             // Only auto-center the map if it's not being moved manually
             if (!isMapMoving) {
-                map.setView([lat, lon], 14); // Zoom into live location
+                map.setView([lat, lon], 14); // Zoom into the live location
             }
 
-            // Update the live location pin
+            // Update or set the live location pin
             if (!liveMarker) {
                 liveMarker = L.marker([lat, lon], {
                     icon: L.divIcon({
                         className: 'leaflet-live-location-icon',
-                        html: ''  // Custom icon (can use an emoji for now)
+                        html: '📍'  // Custom icon for live location
                     })
                 }).addTo(map);
             } else {
@@ -84,11 +88,12 @@ function getLiveLocation() {
     }
 }
 
+// Event listener for the "Show My Location" button
 document.getElementById('locationBtn').onclick = function() {
     getLiveLocation();
 };
 
-// Function to calculate straight-line distance
+// Function to calculate straight-line distance (Haversine Formula)
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the Earth in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -101,7 +106,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return distance;
 }
 
-// Function to fetch driving distance from API and cache it
+// Function to fetch driving distance from OpenRouteService API and cache it
 function calculateDrivingDistance(lat1, lon1, lat2, lon2, marker) {
     var url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${lon1},${lat1}&end=${lon2},${lat2}`;
 
