@@ -41,7 +41,6 @@
             z-index: 9999;
         }
 
-        /* Custom Location Pin Style */
         .leaflet-live-location-icon {
             width: 50px;
             height: 50px;
@@ -84,11 +83,21 @@
         .leaflet-popup-content-wrapper {
             max-width: 300px;
         }
+
+        /* Mobile specific styling */
+        @media screen and (max-width: 768px) {
+            #title {
+                font-size: 18px;
+                top: 5px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
     </style>
 </head>
 <body>
     <div id="title">Fueling Stations Map for Drivers</div>
-    <button id="locationBtn">Get My Location</button>
+    <button id="locationBtn">Show My Location</button>
     <div id="map"></div>
 
     <script>
@@ -106,15 +115,29 @@
         }).addTo(map);
 
         var liveMarker;
-        var distanceToStation;
+        var isMapMoving = false;
+        var locationUpdateTimeout;
 
+        // Watch for map movement to disable auto-center
+        map.on('moveend', function() {
+            isMapMoving = true;
+            clearTimeout(locationUpdateTimeout);
+            locationUpdateTimeout = setTimeout(function() {
+                isMapMoving = false; // Reset the flag after a delay
+            }, 3000); // Delay of 3 seconds before re-enabling auto-centering
+        });
+
+        // Function to get the user's live location
         function getLiveLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(function(position) {
                     var lat = position.coords.latitude;
                     var lon = position.coords.longitude;
 
-                    map.setView([lat, lon], 14); // Zoom into live location
+                    // Only auto-center the map if it's not being moved manually
+                    if (!isMapMoving) {
+                        map.setView([lat, lon], 14); // Zoom into live location
+                    }
 
                     // Update the live location pin
                     if (!liveMarker) {
