@@ -41,24 +41,14 @@
             z-index: 9999;
         }
 
-        .leaflet-marker-icon {
+        .leaflet-live-location-icon {
             width: 50px;
             height: 50px;
-            background-color: green;
-            border-radius: 50%;
-            color: white;
-            text-align: center;
-            line-height: 50px;
-        }
-
-        .leaflet-live-location-icon {
-            width: 40px;
-            height: 40px;
             background-color: red; /* Red color for current location */
             border-radius: 50%;
             color: white;
             text-align: center;
-            line-height: 40px;
+            line-height: 50px;
             font-size: 20px;
         }
 
@@ -101,8 +91,6 @@
     <div id="map"></div>
 
     <script>
-        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // Your OpenRouteService API key
-
         const stations = [
             {lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON"},
             {lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"}
@@ -117,7 +105,7 @@
         var liveMarker;
         var distanceToStation;
 
-        document.getElementById('locationBtn').onclick = function() {
+        function getLiveLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(function(position) {
                     var lat = position.coords.latitude;
@@ -125,12 +113,12 @@
 
                     map.setView([lat, lon], 14); // Zoom into live location
 
-                    // Add or update live location marker (circle marker with custom color)
+                    // Update the live location pin
                     if (!liveMarker) {
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: ''  // Empty text for custom location pin
+                                html: 'You are here'
                             })
                         }).addTo(map);
                     } else {
@@ -151,27 +139,21 @@
                                 </div>
                             `);
                     });
+
+                    // Calculate distance once to make sure we aren't repeatedly calculating
+                    stations.forEach(function(station) {
+                        var distance = calculateDistance(lat, lon, station.lat, station.lon);
+                        updateDistanceDisplay(distance);
+                    });
+                }, function(error) {
+                    alert("Error getting location: " + error.message);
                 });
             }
-        };
+        }
 
-        stations.forEach(function(station) {
-            var marker = L.marker([station.lat, station.lon]).addTo(map)
-                .bindPopup(`
-                    <b>${station.name}</b><br>Distance: <span class="distance">Calculating...</span>
-                    <div class="popup-options">
-                        <button class="popup-button" onclick="copyAddress('${station.name}')">Copy Address</button>
-                        <button class="popup-button" onclick="openGoogleMaps('${station.name}')">Open in Google Maps</button>
-                    </div>
-                `)
-                .on('click', function() {
-                    if (liveMarker) {
-                        const userLat = liveMarker.getLatLng().lat;
-                        const userLon = liveMarker.getLatLng().lng;
-                        calculateDistance(userLat, userLon, station.lat, station.lon, this);
-                    }
-                });
-        });
+        document.getElementById('locationBtn').onclick = function() {
+            getLiveLocation();
+        };
 
         // Function to calculate distance between two points
         function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -184,6 +166,10 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             const distance = R * c;
             return distance;
+        }
+
+        function updateDistanceDisplay(distance) {
+            document.querySelector('.distance').textContent = `${distance.toFixed(2)} km`;
         }
 
         function copyAddress(address) {
@@ -202,25 +188,7 @@
         }
 
         window.onload = function() {
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(function(position) {
-                    var lat = position.coords.latitude;
-                    var lon = position.coords.longitude;
-
-                    if (!liveMarker) {
-                        liveMarker = L.marker([lat, lon], {
-                            icon: L.divIcon({
-                                className: 'leaflet-live-location-icon',
-                                html: ''  // Empty text for custom location pin
-                            })
-                        }).addTo(map);
-                    } else {
-                        liveMarker.setLatLng([lat, lon]);
-                    }
-
-                    liveMarker.bindPopup("You're here!");
-                });
-            }
+            getLiveLocation();
         };
     </script>
 </body>
