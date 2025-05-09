@@ -106,6 +106,7 @@
 
         var liveMarker;
 
+        // Function to get the user's live location
         function getLiveLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(function(position) {
@@ -114,7 +115,7 @@
 
                     map.setView([lat, lon], 14); // Zoom into live location
 
-                    // Update the live location pin
+                    // Add or update live location marker (circle marker with custom color)
                     if (!liveMarker) {
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
