@@ -1,33 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Fueling Stations Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fueling Stations Map for Drivers</title>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        /* Banner style for the map (positioned above the map to avoid overlap) */
-        #banner {
-            position: absolute;
-            top: 10px;
-            left: 0;
-            width: 100%;
-            padding: 15px;
-            background-color: #000000;
-            color: white;
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            z-index: 10000; /* Ensure the banner is above the map */
-        }
-
-        /* Make the map container fill available screen space */
         #map {
-            height: 75vh;  /* Set the height to 75% of the viewport height */
-            width: 100%;  /* Make the map width 100% of the screen */
-            margin-top: 80px; /* Add top margin to avoid title overlap */
+            height: 75vh;
+            width: 100%;
         }
-
-        /* Style for the "Get My Location" button */
         #locationBtn {
             position: absolute;
             top: 10px;
@@ -38,180 +21,122 @@
             border: none;
             border-radius: 5px;
             font-size: 18px;
-            z-index: 9999; /* Ensure the button is on top of other elements */
-            width: 150px;  /* Set width for better accessibility */
+            z-index: 9999;
+            width: 150px;
         }
-
-        /* Style for the custom options in the popup */
-        .popup-options {
-            margin-top: 10px;
-        }
-
-        .popup-button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px;
-            margin: 5px;
-            cursor: pointer;
+        #title {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 20px;
+            color: black;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px;
             border-radius: 5px;
-            font-size: 16px;
-            width: 100%;
-        }
-
-        .popup-button:hover {
-            background-color: #45a049;
-        }
-
-        /* Style for live location pin */
-        .live-location-icon {
-            font-size: 50px;  /* Increased size for better visibility */
-            color: #ff5722;  /* A visible color for the live location pin */
-            margin-left: -25px;  /* Center the icon horizontally */
-        }
-
-        /* Ensure popups and buttons remain readable */
-        .leaflet-popup-content {
-            font-size: 14px;
-        }
-
-        /* Adjust map buttons for visibility on mobile */
-        .leaflet-control-zoom-in,
-        .leaflet-control-zoom-out {
-            z-index: 100; /* Ensure zoom buttons are above other elements */
+            z-index: 9999;
         }
     </style>
 </head>
 <body>
-    <!-- Banner for the map -->
-    <div id="banner">Fueling Stations Map for Drivers</div>
+    <div id="title">Fueling Stations Map for Drivers</div>
     <button id="locationBtn">Get My Location</button>
     <div id="map"></div>
+
     <script>
-        // Create the map with Toronto as default location if no location service
-        var map = L.map('map').setView([43.651070, -79.347015], 10); // Default to Toronto, ON if location is not available
-        
-        // Add OpenStreetMap tile layer (free and open-source)
+        // Initialize the map and set the default view to Toronto (or any starting location)
+        var map = L.map('map').setView([43.651070, -79.347015], 10); // Toronto coordinates as default
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Fuel station data (latitude, longitude, address)
-        var stations = [
-            [43.7449999, -79.6912853, "BVD Brampton, 130 Delta Park, Brampton, ON"],
-            [43.6590715, -79.6561726, "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"],
-            [42.9934741, -82.3104226, "BVD Sarnia, 81 Ube Dr, Sarnia, ON"],
-            [35.2990989, -84.7748544, "Charleston (Tennessee), 200 Lower River Road NW, Charleston, TN, 37310"],
-            [30.517509, -81.636027, "Jacksonville (Florida) - Loves #603, 400 Pecan Park Road, Jacksonville, FL, 32218"],
-            [30.4649705, -81.6732823, "Jacksonville (Florida) - Loves #828, 12921 Duval Rd, Jacksonville, FL 32218"]
-            // Add more stations here
+        var liveMarker; // Variable for live location
+
+        // OpenRouteService API key
+        const apiKey = '5b3ce3597851110001cf62481912bd9edc9d45f39c48928910e7ce67';  // Replace with your actual API key
+
+        // Sample fuel station data (replace with actual stations)
+        const stations = [
+            {lat: 43.7449999, lon: -79.6912853, name: "BVD Brampton, 130 Delta Park, Brampton, ON"},
+            {lat: 43.6590715, lon: -79.6561726, name: "BVD Mississauga, 6125 Ordan Dr, Mississauga, ON"}
+            // Add more stations as needed
         ];
 
-        // Create a custom green icon for fuel stations (Leaflet Default Pin)
-        var greenIcon = L.icon({
-            iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Default Leaflet pin (green)
-            iconSize: [50, 50], // Fixed size for all zoom levels (larger than default)
-            iconAnchor: [25, 50], // Anchor at the bottom of the pin
-            popupAnchor: [0, -50]
-        });
-
-        // Add markers for fuel stations with distance from current location
-        var liveLocationLat = 43.651070; // Default to Toronto if location is unavailable
-        var liveLocationLon = -79.347015;
-
-        stations.forEach(function(station) {
-            var distance = calculateDistance(liveLocationLat, liveLocationLon, station[0], station[1]);
-
-            var marker = L.marker([station[0], station[1]], {icon: greenIcon}).addTo(map)
-                .bindPopup(`
-                    <b>${station[2]}</b><br>
-                    Distance: ${distance} km
-                    <div class="popup-options">
-                        <button class="popup-button" onclick="copyAddress('${station[2]}')">Copy Address</button>
-                        <button class="popup-button" onclick="openGoogleMaps('${station[2]}')">Open in Google Maps</button>
-                    </div>
-                `);
-        });
-
-        // Function to calculate the distance between two sets of latitudes and longitudes
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            var R = 6371; // Radius of the Earth in km
-            var dLat = (lat2 - lat1) * Math.PI / 180;
-            var dLon = (lon2 - lon1) * Math.PI / 180;
-            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            var distance = R * c; // Distance in km
-            return distance.toFixed(2); // Round to two decimal places
-        }
-
-        // Function to copy the address to clipboard
-        function copyAddress(address) {
-            var textArea = document.createElement("textarea");
-            textArea.value = address;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            alert("Address copied to clipboard!");
-        }
-
-        // Function to open the address in Google Maps
-        function openGoogleMaps(address) {
-            var mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}`;
-            window.open(mapsUrl, '_blank');
-        }
-
-        // Variable for live location marker
-        var liveMarker;
-
-        // Function to get and show the driver's location when button is clicked
+        // Function to get the user's location and add a marker
         document.getElementById('locationBtn').onclick = function() {
-            alert("Button clicked. Requesting location...");
-
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
-                    alert("Location found!");
+                    var lat = position.coords.latitude;
+                    var lon = position.coords.longitude;
 
-                    var driverLat = position.coords.latitude;
-                    var driverLon = position.coords.longitude;
+                    // Set the map's center to the user's location
+                    map.setView([lat, lon], 14);
 
-                    // Create a custom icon for the live location (Google-style pin)
-                    var liveIcon = L.icon({
-                        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png', // Standard pin
-                        iconSize: [50, 50], // Increased size for better visibility
-                        iconAnchor: [25, 50], // Adjust to anchor at the bottom of the pin
-                        popupAnchor: [0, -50]
-                    });
-
-                    // If a live marker exists, update it, otherwise create it
-                    if (liveMarker) {
-                        liveMarker.setLatLng([driverLat, driverLon]); // Update position
+                    // Add a marker for the user's location
+                    if (!liveMarker) {
+                        liveMarker = L.marker([lat, lon]).addTo(map);
                     } else {
-                        liveMarker = L.marker([driverLat, driverLon], {icon: liveIcon}).addTo(map)
-                            .bindPopup("You're here!").openPopup();
+                        liveMarker.setLatLng([lat, lon]);
                     }
 
-                    // Zoom the map to the driver's location
-                    map.setView([driverLat, driverLon], 14); // Adjust zoom level if necessary
+                    liveMarker.bindPopup("You're here!");
 
-                    // Watch position to update location continuously
-                    navigator.geolocation.watchPosition(function(position) {
-                        var newLat = position.coords.latitude;
-                        var newLon = position.coords.longitude;
-                        liveMarker.setLatLng([newLat, newLon]); // Update the marker position
-                        map.setView([newLat, newLon], 14); // Adjust map center
-                    }, function(error) {
-                        alert("Location update failed: " + error.message);
-                    });
-                }, function(error) {
-                    alert("Geolocation failed: " + error.message);
+                    // Call the function to calculate distances to fuel stations
+                    calculateDistances(lat, lon);
                 });
-            } else {
-                alert("Geolocation is not supported by this browser.");
             }
         };
+
+        // Add markers for each fuel station
+        stations.forEach(function(station) {
+            L.marker([station.lat, station.lon]).addTo(map)
+                .bindPopup(`<b>${station.name}</b><br>Distance: <span class="distance">Calculating...</span>`)
+                .on('click', function() {
+                    // When a station is clicked, calculate the distance from the user's location
+                    if (liveMarker) {
+                        const userLat = liveMarker.getLatLng().lat;
+                        const userLon = liveMarker.getLatLng().lng;
+                        calculateDistance(userLat, userLon, station.lat, station.lon, this);
+                    }
+                });
+        });
+
+        // Function to calculate the distance between two coordinates using OpenRouteService
+        function calculateDistance(lat1, lon1, lat2, lon2, stationPopup = null) {
+            const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${lon1},${lat1}&end=${lon2},${lat2}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const distance = data.features[0].properties.segments[0].distance / 1000;  // Convert to km
+                    const formattedDistance = distance.toFixed(2);
+
+                    if (stationPopup) {
+                        stationPopup.setPopupContent(stationPopup.getPopup().getContent().replace('Calculating...', `${formattedDistance} km`));
+                    }
+                })
+                .catch(err => console.error('Error fetching distance data:', err));
+        }
+
+        // Function to calculate distances from the user's location to all fuel stations
+        function calculateDistances(lat, lon) {
+            stations.forEach(function(station, index) {
+                const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${lon},${lat}&end=${station.lon},${station.lat}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const distance = data.features[0].properties.segments[0].distance / 1000;  // Convert to km
+                        const formattedDistance = distance.toFixed(2);
+
+                        // Update the station's popup with the calculated distance
+                        const stationMarker = map._layers[Object.keys(map._layers)[index + 1]];
+                        stationMarker.getPopup().setContent(`<b>${station.name}</b><br>Distance: ${formattedDistance} km`);
+                    })
+                    .catch(err => console.error('Error fetching distance data:', err));
+            });
+        }
     </script>
 </body>
 </html>
