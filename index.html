@@ -52,14 +52,14 @@
         }
 
         .leaflet-live-location-icon {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             background-color: #FF6347; /* Tomato color for current location */
             border-radius: 50%;
             text-align: center;
-            line-height: 50px;
+            line-height: 60px;
             color: white;
-            font-size: 18px;
+            font-size: 24px;
         }
 
         .leaflet-popup-content {
@@ -84,11 +84,6 @@
 
         .popup-button:hover {
             background-color: #45a049;
-        }
-
-        /* Fix the popup position */
-        .leaflet-popup-content-wrapper {
-            max-width: 300px;
         }
 
         .popup-button-container {
@@ -117,9 +112,10 @@
 
         var liveMarker;
 
+        // Use watchPosition to track live location updates
         document.getElementById('locationBtn').onclick = function() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
+                navigator.geolocation.watchPosition(function(position) {
                     var lat = position.coords.latitude;
                     var lon = position.coords.longitude;
 
@@ -130,7 +126,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: ''
+                                html: 'You are here'
                             })
                         }).addTo(map);
                     } else {
@@ -139,7 +135,7 @@
 
                     liveMarker.bindPopup("You're here!");
 
-                    calculateDistances(lat, lon);
+                    calculateDistances(lat, lon); // Trigger distance calculation after location update
                 });
             }
         };
@@ -212,7 +208,7 @@
 
         window.onload = function() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
+                navigator.geolocation.watchPosition(function(position) {
                     var lat = position.coords.latitude;
                     var lon = position.coords.longitude;
 
@@ -220,7 +216,7 @@
                         liveMarker = L.marker([lat, lon], {
                             icon: L.divIcon({
                                 className: 'leaflet-live-location-icon',
-                                html: ''
+                                html: 'You are here'
                             })
                         }).addTo(map);
                     } else {
