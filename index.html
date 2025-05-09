@@ -8,7 +8,7 @@
         /* Banner style for the map (positioned above the map to avoid overlap) */
         #banner {
             position: absolute;
-            top: 0;
+            top: 10px;
             left: 0;
             width: 100%;
             padding: 15px;
@@ -24,7 +24,7 @@
         #map {
             height: 75vh;  /* Set the height to 75% of the viewport height */
             width: 100%;  /* Make the map width 100% of the screen */
-            margin-top: 70px; /* Add top margin to avoid title overlap */
+            margin-top: 80px; /* Add top margin to avoid title overlap */
         }
 
         /* Style for the "Get My Location" button */
@@ -116,11 +116,30 @@
             popupAnchor: [0, -50]
         });
 
-        // Add markers for fuel stations with fixed size (no zoom scaling)
+        // Function to calculate the distance between two sets of latitudes and longitudes
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            var R = 6371; // Radius of the Earth in km
+            var dLat = (lat2 - lat1) * Math.PI / 180;
+            var dLon = (lon2 - lon1) * Math.PI / 180;
+            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            var distance = R * c; // Distance in km
+            return distance.toFixed(2); // Round to two decimal places
+        }
+
+        // Add markers for fuel stations with distance from current location
+        var liveLocationLat = 43.651070; // Default to Toronto if location is unavailable
+        var liveLocationLon = -79.347015;
+
         stations.forEach(function(station) {
+            var distance = calculateDistance(liveLocationLat, liveLocationLon, station[0], station[1]);
+
             var marker = L.marker([station[0], station[1]], {icon: greenIcon}).addTo(map)
                 .bindPopup(`
-                    <b>${station[2]}</b>
+                    <b>${station[2]}</b><br>
+                    Distance: ${distance} km
                     <div class="popup-options">
                         <button class="popup-button" onclick="copyAddress('${station[2]}')">Copy Address</button>
                         <button class="popup-button" onclick="openGoogleMaps('${station[2]}')">Open in Google Maps</button>
