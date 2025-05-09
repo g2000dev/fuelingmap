@@ -5,26 +5,11 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
-        /* Banner style for the map (positioned above the map to avoid overlap) */
-        #banner {
-            position: absolute;
-            top: 10px;
-            left: 0;
-            width: 100%;
-            padding: 15px;
-            background-color: #000000;
-            color: white;
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            z-index: 10000; /* Ensure the banner is above the map */
-        }
-
         /* Make the map container fill available screen space */
         #map {
             height: 75vh;  /* Set the height to 75% of the viewport height */
             width: 100%;  /* Make the map width 100% of the screen */
-            margin-top: 80px; /* Add top margin to avoid title overlap */
+            margin-top: 50px; /* Adjust top margin after removing title */
         }
 
         /* Style for the "Get My Location" button */
@@ -70,11 +55,6 @@
             margin-left: -25px;  /* Center the icon horizontally */
         }
 
-        /* Ensure popups and buttons remain readable */
-        .leaflet-popup-content {
-            font-size: 14px;
-        }
-
         /* Adjust map buttons for visibility on mobile */
         .leaflet-control-zoom-in,
         .leaflet-control-zoom-out {
@@ -91,11 +71,17 @@
             font-size: 18px;
         }
 
+        /* Style for the station's distance label */
+        .station-label {
+            font-size: 14px;
+            color: green;
+            font-weight: bold;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
-    <!-- Banner for the map -->
-    <div id="banner">Fueling Stations Map for Drivers</div>
     <button id="locationBtn">Get My Location</button>
     <div id="map"></div>
     <script>
@@ -149,7 +135,7 @@
             var marker = L.marker([station[0], station[1]], {icon: greenIcon}).addTo(map)
                 .bindPopup(`
                     <b>${station[2]}</b><br>
-                    Distance: ${distance} km
+                    <span class="station-label">Distance: ${distance} km</span>
                     <div class="popup-options">
                         <button class="popup-button" onclick="copyAddress('${station[2]}')">Copy Address</button>
                         <button class="popup-button" onclick="openGoogleMaps('${station[2]}')">Open in Google Maps</button>
