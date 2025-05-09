@@ -11,6 +11,21 @@
             width: 100%;  /* Make the map width 100% of the screen */
         }
 
+        /* Banner style for the map (positioned above the map to avoid overlap) */
+        #banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            background-color: #000000;
+            color: white;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            z-index: 10000; /* Ensure the banner is above the map */
+        }
+
         /* Style for the "Get My Location" button */
         #locationBtn {
             position: absolute;
@@ -24,21 +39,6 @@
             font-size: 18px;
             z-index: 9999; /* Ensure the button is on top of other elements */
             width: 150px;  /* Set width for better accessibility */
-        }
-
-        /* Banner style for the map */
-        #banner {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            z-index: 10000; /* Ensure the banner is above the map */
         }
 
         /* Style for the custom options in the popup */
